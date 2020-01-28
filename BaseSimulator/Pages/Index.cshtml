@@ -4,7 +4,23 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@section Stylesheets {
+    <link rel="stylesheet" href="~/css/base.css" />
+}
+
+<div class="base">
+    <div>
+        @foreach (var slot in Model.BaseData.Layouts.V0.Slots.Values)
+        {
+            string widthClass = $"width{slot.Size.Col}";
+            string heightClass = $"height{slot.Size.Row}";
+            
+            string leftPixels = $"{Model.OneUnitSize * slot.Offset.Col}px";
+            string topPixels = $"{Model.OneUnitSize * slot.Offset.Row}px";
+
+            <div class="slot @widthClass @heightClass" style="left: @leftPixels; top: @topPixels">
+                @*<p>@slot.Id</p>*@
+            </div>
+        }
+    </div>
 </div>
