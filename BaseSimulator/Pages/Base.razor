@@ -1,0 +1,27 @@
+﻿@page "/base"
+
+@using Arknights.BaseSimulator.Data
+@inject BaseService BaseService
+
+<link rel="stylesheet" href="css/base.css" />
+
+<div class="base">
+    <div>
+        @foreach (var slot in BaseService.Layout.Slots.Values)
+        {
+            string widthClass = $"width{slot.Size.Col}";
+            string heightClass = $"height{slot.Size.Row}";
+
+            string leftPixels = $"{BaseService.OneUnitSize * slot.Offset.Col}px";
+            string topPixels = $"{BaseService.OneUnitSize * Math.Abs(slot.Offset.Row + slot.Size.Row - BaseService.MaxLayoutHeight)}px";
+
+            <div class="slot @widthClass @heightClass" style="left: @leftPixels; top: @topPixels">
+                <button class="btn btn-dark room">@slot.Category</button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+
+}

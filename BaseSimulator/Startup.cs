@@ -1,4 +1,5 @@
 using System.IO;
+using Arknights.BaseSimulator.Data;
 using Arknights.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -18,10 +19,13 @@ namespace Arknights.BaseSimulator
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
+        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
-            services.AddSingleton(BaseData.FromJson(File.ReadAllText("Data/building_data.json")));
+            services.AddServerSideBlazor();
+            services.AddSingleton(BaseData.FromJson(File.ReadAllText("GameData/building_data.json")));
+            services.AddSingleton<BaseService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,11 +47,10 @@ namespace Arknights.BaseSimulator
 
             app.UseRouting();
 
-            app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapRazorPages();
+                endpoints.MapBlazorHub();
+                endpoints.MapFallbackToPage("/_Host");
             });
         }
     }
