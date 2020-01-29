@@ -10,16 +10,16 @@
 
 <div class="base">
     <div>
-        @foreach (var slot in Model.BaseData.Layouts.V0.Slots.Values)
+        @foreach (var slot in Model.Layout.Slots.Values)
         {
             string widthClass = $"width{slot.Size.Col}";
             string heightClass = $"height{slot.Size.Row}";
-            
+
             string leftPixels = $"{Model.OneUnitSize * slot.Offset.Col}px";
-            string topPixels = $"{Model.OneUnitSize * slot.Offset.Row}px";
+            string topPixels = $"{Model.OneUnitSize * Math.Abs(slot.Offset.Row + slot.Size.Row - Model.MaxLayoutHeight)}px";
 
             <div class="slot @widthClass @heightClass" style="left: @leftPixels; top: @topPixels">
-                @*<p>@slot.Id</p>*@
+                <button class="btn btn-dark room">@slot.Category</button>
             </div>
         }
     </div>

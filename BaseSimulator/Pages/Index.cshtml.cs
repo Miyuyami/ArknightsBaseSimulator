@@ -14,7 +14,10 @@ namespace Arknights.BaseSimulator.Pages
         public readonly double OneUnitSize = 50;
 
         private ILogger<IndexModel> Logger { get; }
+        
         public BaseData BaseData { get; }
+        public Layout Layout => this.BaseData.Layouts[LayoutVersion.V0];
+        public long MaxLayoutHeight => this.Layout.Slots.Values.Max(s => s.Offset.Row + s.Size.Row);
 
         public IndexModel(ILogger<IndexModel> logger, BaseData baseData)
         {

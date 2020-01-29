@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -49,7 +50,7 @@ namespace Arknights.Data
         [J("tradingManpowerCostByNum")] public List<long> TradingManpowerCostByNum { get; set; }
         [J("roomUnlockConds")] public Dictionary<string, RoomConditions> RoomUnlockConds { get; set; }
         [J("rooms")] public Rooms Rooms { get; set; }
-        [J("layouts")] public Layouts Layouts { get; set; }
+        [J("layouts")] public Dictionary<LayoutVersion, Layout> Layouts { get; set; }
         [J("prefabs")] public Dictionary<string, Prefab> Prefabs { get; set; }
         [J("controlData")] public ControlData ControlData { get; set; }
         [J("manufactData")] public ManufactData ManufactData { get; set; }
@@ -161,7 +162,7 @@ namespace Arknights.Data
         [J("depth")] public long Depth { get; set; }
         [J("height")] public long Height { get; set; }
         [J("comfort")] public long Comfort { get; set; }
-        [J("usage")] public Usage Usage { get; set; }
+        [J("usage")] public string Usage { get; set; }
         [J("description")] public string Description { get; set; }
         [J("obtainApproach")] public string ObtainApproach { get; set; }
         [J("processedProductId")] [JsonConverter(typeof(ParseStringConverter))] public long ProcessedProductId { get; set; }
@@ -231,17 +232,12 @@ namespace Arknights.Data
         [J("specSkillLvlLimit", NullValueHandling = N.Ignore)] public long? SpecSkillLvlLimit { get; set; }
     }
 
-    public partial class Layouts
-    {
-        [J("v0")] public V0 V0 { get; set; }
-    }
-
-    public partial class V0
+    public partial class Layout
     {
         [J("id")] public string Id { get; set; }
         [J("slots")] public Dictionary<string, Slot> Slots { get; set; }
         [J("cleanCosts")] public Dictionary<string, CleanCostType> CleanCostTypes { get; set; }
-        [J("storeys")] public Dictionary<string, Storey> Storeys { get; set; }
+        [J("storeys")] public Dictionary<StoreyId, Storey> Storeys { get; set; }
     }
 
     public partial class CleanCostType
@@ -433,37 +429,168 @@ namespace Arknights.Data
         [J("rank")] public long Rank { get; set; }
     }
 
-    public enum BuffCategory { Function, Output, Recovery };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum BuffCategory
+    {
+        [EnumMember(Value = "FUNCTION")] Function,
+        [EnumMember(Value = "OUTPUT")] Output,
+        [EnumMember(Value = "RECOVERY")] Recovery,
+    };
 
-    public enum BuffColor { HexDD653F, HexE3EB00, HexFFD800, Hex005752, Hex0075A9, Hex21CDCB, Hex565656, Hex7D0022, Hex8FC31F };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum BuffColor
+    {
+        [EnumMember(Value = "#005752")] Hex005752,
+        [EnumMember(Value = "#0075a9")] Hex0075A9,
+        [EnumMember(Value = "#21cdcb")] Hex21CDCB,
+        [EnumMember(Value = "#565656")] Hex565656,
+        [EnumMember(Value = "#7d0022")] Hex7D0022,
+        [EnumMember(Value = "#8fc31f")] Hex8FC31F,
+        [EnumMember(Value = "#dd653f")] HexDD653F,
+        [EnumMember(Value = "#e3eb00")] HexE3EB00,
+        [EnumMember(Value = "#ffd800")] HexFFD800,
+    };
 
-    public enum BuffIcon { Control, Dormitory, Hire, Manufacture, Meeting, Power, Trading, Training, Workshop };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum BuffIcon
+    {
+        [EnumMember(Value = "control")] Control,
+        [EnumMember(Value = "dormitory")] Dormitory,
+        [EnumMember(Value = "hire")] Hire,
+        [EnumMember(Value = "manufacture")] Manufacture,
+        [EnumMember(Value = "meeting")] Meeting,
+        [EnumMember(Value = "power")] Power,
+        [EnumMember(Value = "trading")] Trading,
+        [EnumMember(Value = "training")] Training,
+        [EnumMember(Value = "workshop")] Workshop,
+    };
 
-    public enum RoomType { Control, Corridor, Dormitory, Elevator, Functional, Hire, Manufacture, Meeting, None, Power, Trading, Training, Workshop };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum RoomType
+    {
+        [EnumMember(Value = "CONTROL")] Control,
+        [EnumMember(Value = "CORRIDOR")] Corridor,
+        [EnumMember(Value = "DORMITORY")] Dormitory,
+        [EnumMember(Value = "ELEVATOR")] Elevator,
+        [EnumMember(Value = "FUNCTIONAL")] Functional,
+        [EnumMember(Value = "HIRE")] Hire,
+        [EnumMember(Value = "MANUFACTURE")] Manufacture,
+        [EnumMember(Value = "MEETING")] Meeting,
+        [EnumMember(Value = "NONE")] None,
+        [EnumMember(Value = "POWER")] Power,
+        [EnumMember(Value = "TRADING")] Trading,
+        [EnumMember(Value = "TRAINING")] Training,
+        [EnumMember(Value = "WORKSHOP")] Workshop,
+    };
 
-    public enum TextColor { HexFFFFFF, Hex333333 };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum TextColor
+    {
+        [EnumMember(Value = "#333333")] Hex333333,
+        [EnumMember(Value = "#ffffff")] HexFFFFFF,
+    };
 
-    public enum DefaultPrefabId { RoomDormitory6X2 };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum DefaultPrefabId
+    {
+        [EnumMember(Value = "room_dormitory_6x2")] RoomDormitory6X2,
+    };
 
-    public enum FurnitureCategory { Floor, Furniture, Wall };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum FurnitureCategory
+    {
+        [EnumMember(Value = "FLOOR")] Floor,
+        [EnumMember(Value = "FURNITURE")] Furniture,
+        [EnumMember(Value = "WALL")] Wall,
+    };
 
-    public enum Location { Carpet, Ceiling, Floor, None, Poster, Wall };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum Location
+    {
+        [EnumMember(Value = "CARPET")] Carpet,
+        [EnumMember(Value = "CEILING")] Ceiling,
+        [EnumMember(Value = "FLOOR")] Floor,
+        [EnumMember(Value = "NONE")] None,
+        [EnumMember(Value = "POSTER")] Poster,
+        [EnumMember(Value = "WALL")] Wall,
+    };
 
-    public enum FurnitureType { Bedding, Cabinet, Carpet, Ceiling, Ceilinglamp, Decoration, Floor, Seating, Table, Walldeco, Walllamp, Wallpaper };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum FurnitureType
+    {
+        [EnumMember(Value = "BEDDING")] Bedding,
+        [EnumMember(Value = "CABINET")] Cabinet,
+        [EnumMember(Value = "CARPET")] Carpet,
+        [EnumMember(Value = "CEILING")] Ceiling,
+        [EnumMember(Value = "CEILINGLAMP")] Ceilinglamp,
+        [EnumMember(Value = "DECORATION")] Decoration,
+        [EnumMember(Value = "FLOOR")] Floor,
+        [EnumMember(Value = "SEATING")] Seating,
+        [EnumMember(Value = "TABLE")] Table,
+        [EnumMember(Value = "WALLDECO")] Walldeco,
+        [EnumMember(Value = "WALLLAMP")] Walllamp,
+        [EnumMember(Value = "WALLPAPER")] Wallpaper,
+    };
 
-    public enum Usage { CanBeUsedToDecorateTheDormAndImproveTheAmbience };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum CostType
+    {
+        [EnumMember(Value = "GOLD")] Gold,
+        [EnumMember(Value = "MATERIAL")] Material,
+    };
 
-    public enum CostType { Gold, Material };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum PurpleCategory
+    {
+        [EnumMember(Value = "CORRIDOR")] Corridor,
+        [EnumMember(Value = "CUSTOM")] Custom,
+        [EnumMember(Value = "ELEVATOR")] Elevator,
+        [EnumMember(Value = "FUNCTION")] Function,
+        [EnumMember(Value = "OUTPUT")] Output,
+        [EnumMember(Value = "SPECIAL")] Special,
+    };
 
-    public enum PurpleCategory { Corridor, Custom, Elevator, Function, Output, Special };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum StoreyId
+    {
+        [EnumMember(Value = "")] Empty,
+        [EnumMember(Value = "1F")] F1,
+        [EnumMember(Value = "B1")] B1,
+        [EnumMember(Value = "B2")] B2,
+        [EnumMember(Value = "B3")] B3,
+        [EnumMember(Value = "B4")] B4,
+    };
 
-    public enum StoreyId { B1, B2, B3, B4, Empty, The1F };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum BuffType
+    {
+        [EnumMember(Value = "W_ASC")] WAsc,
+        [EnumMember(Value = "W_BUILDING")] WBuilding,
+        [EnumMember(Value = "W_EVOLVE")] WEvolve,
+        [EnumMember(Value = "W_SKILL")] WSkill,
+    };
 
-    public enum BuffType { WAsc, WBuilding, WEvolve, WSkill };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum FormulaType
+    {
+        [EnumMember(Value = "F_ASC")] FAsc,
+        [EnumMember(Value = "F_BUILDING")] FBuilding,
+        [EnumMember(Value = "F_EVOLVE")] FEvolve,
+        [EnumMember(Value = "F_SKILL")] FSkill,
+    };
 
-    public enum FormulaType { FAsc, FBuilding, FEvolve, FSkill };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum StoreyType
+    {
+        [EnumMember(Value = "UPGROUND")] UPGROUND,
+        [EnumMember(Value = "DOWNGROUND")] DOWNGROUND,
+    };
 
-    public enum StoreyType { UPGROUND, DOWNGROUND };
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum LayoutVersion
+    {
+        [EnumMember(Value = "v0")] V0,
+    }
 
     public partial class BaseData
     {
@@ -483,464 +610,9 @@ namespace Arknights.Data
             DateParseHandling = DateParseHandling.None,
             Converters =
             {
-                BuffCategoryConverter.Singleton,
-                BuffColorConverter.Singleton,
-                BuffIconConverter.Singleton,
-                RoomTypeConverter.Singleton,
-                TextColorConverter.Singleton,
-                DefaultPrefabIdConverter.Singleton,
-                FurnitureCategoryConverter.Singleton,
-                LocationConverter.Singleton,
-                FurnitureTypeConverter.Singleton,
-                UsageConverter.Singleton,
-                CostTypeConverter.Singleton,
-                PurpleCategoryConverter.Singleton,
-                StoreyIdConverter.Singleton,
-                BuffTypeConverter.Singleton,
-                FormulaTypeConverter.Singleton,
-                StoreyTypeConverter.Singleton,
                 new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
             },
         };
-    }
-
-    internal class BuffCategoryConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(BuffCategory) || t == typeof(BuffCategory?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "FUNCTION" => BuffCategory.Function,
-                "OUTPUT" => BuffCategory.Output,
-                "RECOVERY" => BuffCategory.Recovery,
-                _ => throw new Exception("Cannot unmarshal type BuffCategory"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (BuffCategory)untypedValue;
-            switch (value)
-            {
-                case BuffCategory.Function:
-                    serializer.Serialize(writer, "FUNCTION");
-                    return;
-                case BuffCategory.Output:
-                    serializer.Serialize(writer, "OUTPUT");
-                    return;
-                case BuffCategory.Recovery:
-                    serializer.Serialize(writer, "RECOVERY");
-                    return;
-            }
-            throw new Exception("Cannot marshal type BuffCategory");
-        }
-
-        public static readonly BuffCategoryConverter Singleton = new BuffCategoryConverter();
-    }
-
-    internal class BuffColorConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(BuffColor) || t == typeof(BuffColor?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "#005752" => BuffColor.Hex005752,
-                "#0075a9" => BuffColor.Hex0075A9,
-                "#21cdcb" => BuffColor.Hex21CDCB,
-                "#565656" => BuffColor.Hex565656,
-                "#7d0022" => BuffColor.Hex7D0022,
-                "#8fc31f" => BuffColor.Hex8FC31F,
-                "#dd653f" => BuffColor.HexDD653F,
-                "#e3eb00" => BuffColor.HexE3EB00,
-                "#ffd800" => BuffColor.HexFFD800,
-                _ => throw new Exception("Cannot unmarshal type BuffColor"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (BuffColor)untypedValue;
-            switch (value)
-            {
-                case BuffColor.Hex005752:
-                    serializer.Serialize(writer, "#005752");
-                    return;
-                case BuffColor.Hex0075A9:
-                    serializer.Serialize(writer, "#0075a9");
-                    return;
-                case BuffColor.Hex21CDCB:
-                    serializer.Serialize(writer, "#21cdcb");
-                    return;
-                case BuffColor.Hex565656:
-                    serializer.Serialize(writer, "#565656");
-                    return;
-                case BuffColor.Hex7D0022:
-                    serializer.Serialize(writer, "#7d0022");
-                    return;
-                case BuffColor.Hex8FC31F:
-                    serializer.Serialize(writer, "#8fc31f");
-                    return;
-                case BuffColor.HexDD653F:
-                    serializer.Serialize(writer, "#dd653f");
-                    return;
-                case BuffColor.HexE3EB00:
-                    serializer.Serialize(writer, "#e3eb00");
-                    return;
-                case BuffColor.HexFFD800:
-                    serializer.Serialize(writer, "#ffd800");
-                    return;
-            }
-            throw new Exception("Cannot marshal type BuffColor");
-        }
-
-        public static readonly BuffColorConverter Singleton = new BuffColorConverter();
-    }
-
-    internal class BuffIconConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(BuffIcon) || t == typeof(BuffIcon?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "control" => BuffIcon.Control,
-                "dormitory" => BuffIcon.Dormitory,
-                "hire" => BuffIcon.Hire,
-                "manufacture" => BuffIcon.Manufacture,
-                "meeting" => BuffIcon.Meeting,
-                "power" => BuffIcon.Power,
-                "trading" => BuffIcon.Trading,
-                "training" => BuffIcon.Training,
-                "workshop" => BuffIcon.Workshop,
-                _ => throw new Exception("Cannot unmarshal type BuffIcon"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (BuffIcon)untypedValue;
-            switch (value)
-            {
-                case BuffIcon.Control:
-                    serializer.Serialize(writer, "control");
-                    return;
-                case BuffIcon.Dormitory:
-                    serializer.Serialize(writer, "dormitory");
-                    return;
-                case BuffIcon.Hire:
-                    serializer.Serialize(writer, "hire");
-                    return;
-                case BuffIcon.Manufacture:
-                    serializer.Serialize(writer, "manufacture");
-                    return;
-                case BuffIcon.Meeting:
-                    serializer.Serialize(writer, "meeting");
-                    return;
-                case BuffIcon.Power:
-                    serializer.Serialize(writer, "power");
-                    return;
-                case BuffIcon.Trading:
-                    serializer.Serialize(writer, "trading");
-                    return;
-                case BuffIcon.Training:
-                    serializer.Serialize(writer, "training");
-                    return;
-                case BuffIcon.Workshop:
-                    serializer.Serialize(writer, "workshop");
-                    return;
-            }
-            throw new Exception("Cannot marshal type BuffIcon");
-        }
-
-        public static readonly BuffIconConverter Singleton = new BuffIconConverter();
-    }
-
-    internal class RoomTypeConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(RoomType) || t == typeof(RoomType?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "CONTROL" => RoomType.Control,
-                "CORRIDOR" => RoomType.Corridor,
-                "DORMITORY" => RoomType.Dormitory,
-                "ELEVATOR" => RoomType.Elevator,
-                "FUNCTIONAL" => RoomType.Functional,
-                "HIRE" => RoomType.Hire,
-                "MANUFACTURE" => RoomType.Manufacture,
-                "MEETING" => RoomType.Meeting,
-                "NONE" => RoomType.None,
-                "POWER" => RoomType.Power,
-                "TRADING" => RoomType.Trading,
-                "TRAINING" => RoomType.Training,
-                "WORKSHOP" => RoomType.Workshop,
-                _ => throw new Exception("Cannot unmarshal type RoomType"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (RoomType)untypedValue;
-            switch (value)
-            {
-                case RoomType.Control:
-                    serializer.Serialize(writer, "CONTROL");
-                    return;
-                case RoomType.Corridor:
-                    serializer.Serialize(writer, "CORRIDOR");
-                    return;
-                case RoomType.Dormitory:
-                    serializer.Serialize(writer, "DORMITORY");
-                    return;
-                case RoomType.Elevator:
-                    serializer.Serialize(writer, "ELEVATOR");
-                    return;
-                case RoomType.Functional:
-                    serializer.Serialize(writer, "FUNCTIONAL");
-                    return;
-                case RoomType.Hire:
-                    serializer.Serialize(writer, "HIRE");
-                    return;
-                case RoomType.Manufacture:
-                    serializer.Serialize(writer, "MANUFACTURE");
-                    return;
-                case RoomType.Meeting:
-                    serializer.Serialize(writer, "MEETING");
-                    return;
-                case RoomType.None:
-                    serializer.Serialize(writer, "NONE");
-                    return;
-                case RoomType.Power:
-                    serializer.Serialize(writer, "POWER");
-                    return;
-                case RoomType.Trading:
-                    serializer.Serialize(writer, "TRADING");
-                    return;
-                case RoomType.Training:
-                    serializer.Serialize(writer, "TRAINING");
-                    return;
-                case RoomType.Workshop:
-                    serializer.Serialize(writer, "WORKSHOP");
-                    return;
-            }
-            throw new Exception("Cannot marshal type RoomType");
-        }
-
-        public static readonly RoomTypeConverter Singleton = new RoomTypeConverter();
-    }
-
-    internal class TextColorConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(TextColor) || t == typeof(TextColor?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "#333333" => TextColor.Hex333333,
-                "#ffffff" => TextColor.HexFFFFFF,
-                _ => throw new Exception("Cannot unmarshal type TextColor"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (TextColor)untypedValue;
-            switch (value)
-            {
-                case TextColor.Hex333333:
-                    serializer.Serialize(writer, "#333333");
-                    return;
-                case TextColor.HexFFFFFF:
-                    serializer.Serialize(writer, "#ffffff");
-                    return;
-            }
-            throw new Exception("Cannot marshal type TextColor");
-        }
-
-        public static readonly TextColorConverter Singleton = new TextColorConverter();
-    }
-
-    internal class DefaultPrefabIdConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(DefaultPrefabId) || t == typeof(DefaultPrefabId?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            if (value == "room_dormitory_6x2")
-            {
-                return DefaultPrefabId.RoomDormitory6X2;
-            }
-            throw new Exception("Cannot unmarshal type DefaultPrefabId");
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (DefaultPrefabId)untypedValue;
-            if (value == DefaultPrefabId.RoomDormitory6X2)
-            {
-                serializer.Serialize(writer, "room_dormitory_6x2");
-                return;
-            }
-            throw new Exception("Cannot marshal type DefaultPrefabId");
-        }
-
-        public static readonly DefaultPrefabIdConverter Singleton = new DefaultPrefabIdConverter();
-    }
-
-    internal class FurnitureCategoryConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(FurnitureCategory) || t == typeof(FurnitureCategory?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "FLOOR" => FurnitureCategory.Floor,
-                "FURNITURE" => FurnitureCategory.Furniture,
-                "WALL" => FurnitureCategory.Wall,
-                _ => throw new Exception("Cannot unmarshal type FurnitureCategory"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (FurnitureCategory)untypedValue;
-            switch (value)
-            {
-                case FurnitureCategory.Floor:
-                    serializer.Serialize(writer, "FLOOR");
-                    return;
-                case FurnitureCategory.Furniture:
-                    serializer.Serialize(writer, "FURNITURE");
-                    return;
-                case FurnitureCategory.Wall:
-                    serializer.Serialize(writer, "WALL");
-                    return;
-            }
-            throw new Exception("Cannot marshal type FurnitureCategory");
-        }
-
-        public static readonly FurnitureCategoryConverter Singleton = new FurnitureCategoryConverter();
-    }
-
-    internal class LocationConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(Location) || t == typeof(Location?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "CARPET" => Location.Carpet,
-                "CEILING" => Location.Ceiling,
-                "FLOOR" => Location.Floor,
-                "NONE" => Location.None,
-                "POSTER" => Location.Poster,
-                "WALL" => Location.Wall,
-                _ => throw new Exception("Cannot unmarshal type Location"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (Location)untypedValue;
-            switch (value)
-            {
-                case Location.Carpet:
-                    serializer.Serialize(writer, "CARPET");
-                    return;
-                case Location.Ceiling:
-                    serializer.Serialize(writer, "CEILING");
-                    return;
-                case Location.Floor:
-                    serializer.Serialize(writer, "FLOOR");
-                    return;
-                case Location.None:
-                    serializer.Serialize(writer, "NONE");
-                    return;
-                case Location.Poster:
-                    serializer.Serialize(writer, "POSTER");
-                    return;
-                case Location.Wall:
-                    serializer.Serialize(writer, "WALL");
-                    return;
-            }
-            throw new Exception("Cannot marshal type Location");
-        }
-
-        public static readonly LocationConverter Singleton = new LocationConverter();
     }
 
     internal class ParseStringConverter : JsonConverter
@@ -972,408 +644,5 @@ namespace Arknights.Data
         }
 
         public static readonly ParseStringConverter Singleton = new ParseStringConverter();
-    }
-
-    internal class FurnitureTypeConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(FurnitureType) || t == typeof(FurnitureType?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "BEDDING" => FurnitureType.Bedding,
-                "CABINET" => FurnitureType.Cabinet,
-                "CARPET" => FurnitureType.Carpet,
-                "CEILING" => FurnitureType.Ceiling,
-                "CEILINGLAMP" => FurnitureType.Ceilinglamp,
-                "DECORATION" => FurnitureType.Decoration,
-                "FLOOR" => FurnitureType.Floor,
-                "SEATING" => FurnitureType.Seating,
-                "TABLE" => FurnitureType.Table,
-                "WALLDECO" => FurnitureType.Walldeco,
-                "WALLLAMP" => FurnitureType.Walllamp,
-                "WALLPAPER" => FurnitureType.Wallpaper,
-                _ => throw new Exception("Cannot unmarshal type FurnitureType"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (FurnitureType)untypedValue;
-            switch (value)
-            {
-                case FurnitureType.Bedding:
-                    serializer.Serialize(writer, "BEDDING");
-                    return;
-                case FurnitureType.Cabinet:
-                    serializer.Serialize(writer, "CABINET");
-                    return;
-                case FurnitureType.Carpet:
-                    serializer.Serialize(writer, "CARPET");
-                    return;
-                case FurnitureType.Ceiling:
-                    serializer.Serialize(writer, "CEILING");
-                    return;
-                case FurnitureType.Ceilinglamp:
-                    serializer.Serialize(writer, "CEILINGLAMP");
-                    return;
-                case FurnitureType.Decoration:
-                    serializer.Serialize(writer, "DECORATION");
-                    return;
-                case FurnitureType.Floor:
-                    serializer.Serialize(writer, "FLOOR");
-                    return;
-                case FurnitureType.Seating:
-                    serializer.Serialize(writer, "SEATING");
-                    return;
-                case FurnitureType.Table:
-                    serializer.Serialize(writer, "TABLE");
-                    return;
-                case FurnitureType.Walldeco:
-                    serializer.Serialize(writer, "WALLDECO");
-                    return;
-                case FurnitureType.Walllamp:
-                    serializer.Serialize(writer, "WALLLAMP");
-                    return;
-                case FurnitureType.Wallpaper:
-                    serializer.Serialize(writer, "WALLPAPER");
-                    return;
-            }
-            throw new Exception("Cannot marshal type FurnitureType");
-        }
-
-        public static readonly FurnitureTypeConverter Singleton = new FurnitureTypeConverter();
-    }
-
-    internal class UsageConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(Usage) || t == typeof(Usage?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            if (value == "Can be used to decorate the dorm and improve the ambience.")
-            {
-                return Usage.CanBeUsedToDecorateTheDormAndImproveTheAmbience;
-            }
-            throw new Exception("Cannot unmarshal type Usage");
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (Usage)untypedValue;
-            if (value == Usage.CanBeUsedToDecorateTheDormAndImproveTheAmbience)
-            {
-                serializer.Serialize(writer, "Can be used to decorate the dorm and improve the ambience.");
-                return;
-            }
-            throw new Exception("Cannot marshal type Usage");
-        }
-
-        public static readonly UsageConverter Singleton = new UsageConverter();
-    }
-
-    internal class CostTypeConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(CostType) || t == typeof(CostType?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "GOLD" => CostType.Gold,
-                "MATERIAL" => CostType.Material,
-                _ => throw new Exception("Cannot unmarshal type CostType"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (CostType)untypedValue;
-            switch (value)
-            {
-                case CostType.Gold:
-                    serializer.Serialize(writer, "GOLD");
-                    return;
-                case CostType.Material:
-                    serializer.Serialize(writer, "MATERIAL");
-                    return;
-            }
-            throw new Exception("Cannot marshal type CostType");
-        }
-
-        public static readonly CostTypeConverter Singleton = new CostTypeConverter();
-    }
-
-    internal class PurpleCategoryConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(PurpleCategory) || t == typeof(PurpleCategory?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "CORRIDOR" => PurpleCategory.Corridor,
-                "CUSTOM" => PurpleCategory.Custom,
-                "ELEVATOR" => PurpleCategory.Elevator,
-                "FUNCTION" => PurpleCategory.Function,
-                "OUTPUT" => PurpleCategory.Output,
-                "SPECIAL" => PurpleCategory.Special,
-                _ => throw new Exception("Cannot unmarshal type PurpleCategory"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (PurpleCategory)untypedValue;
-            switch (value)
-            {
-                case PurpleCategory.Corridor:
-                    serializer.Serialize(writer, "CORRIDOR");
-                    return;
-                case PurpleCategory.Custom:
-                    serializer.Serialize(writer, "CUSTOM");
-                    return;
-                case PurpleCategory.Elevator:
-                    serializer.Serialize(writer, "ELEVATOR");
-                    return;
-                case PurpleCategory.Function:
-                    serializer.Serialize(writer, "FUNCTION");
-                    return;
-                case PurpleCategory.Output:
-                    serializer.Serialize(writer, "OUTPUT");
-                    return;
-                case PurpleCategory.Special:
-                    serializer.Serialize(writer, "SPECIAL");
-                    return;
-            }
-            throw new Exception("Cannot marshal type PurpleCategory");
-        }
-
-        public static readonly PurpleCategoryConverter Singleton = new PurpleCategoryConverter();
-    }
-
-    internal class StoreyIdConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(StoreyId) || t == typeof(StoreyId?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "" => StoreyId.Empty,
-                "1F" => StoreyId.The1F,
-                "B1" => StoreyId.B1,
-                "B2" => StoreyId.B2,
-                "B3" => StoreyId.B3,
-                "B4" => StoreyId.B4,
-                _ => throw new Exception("Cannot unmarshal type StoreyId"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (StoreyId)untypedValue;
-            switch (value)
-            {
-                case StoreyId.Empty:
-                    serializer.Serialize(writer, "");
-                    return;
-                case StoreyId.The1F:
-                    serializer.Serialize(writer, "1F");
-                    return;
-                case StoreyId.B1:
-                    serializer.Serialize(writer, "B1");
-                    return;
-                case StoreyId.B2:
-                    serializer.Serialize(writer, "B2");
-                    return;
-                case StoreyId.B3:
-                    serializer.Serialize(writer, "B3");
-                    return;
-                case StoreyId.B4:
-                    serializer.Serialize(writer, "B4");
-                    return;
-            }
-            throw new Exception("Cannot marshal type StoreyId");
-        }
-
-        public static readonly StoreyIdConverter Singleton = new StoreyIdConverter();
-    }
-
-    internal class BuffTypeConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(BuffType) || t == typeof(BuffType?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "W_ASC" => BuffType.WAsc,
-                "W_BUILDING" => BuffType.WBuilding,
-                "W_EVOLVE" => BuffType.WEvolve,
-                "W_SKILL" => BuffType.WSkill,
-                _ => throw new Exception("Cannot unmarshal type BuffType"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (BuffType)untypedValue;
-            switch (value)
-            {
-                case BuffType.WAsc:
-                    serializer.Serialize(writer, "W_ASC");
-                    return;
-                case BuffType.WBuilding:
-                    serializer.Serialize(writer, "W_BUILDING");
-                    return;
-                case BuffType.WEvolve:
-                    serializer.Serialize(writer, "W_EVOLVE");
-                    return;
-                case BuffType.WSkill:
-                    serializer.Serialize(writer, "W_SKILL");
-                    return;
-            }
-            throw new Exception("Cannot marshal type BuffType");
-        }
-
-        public static readonly BuffTypeConverter Singleton = new BuffTypeConverter();
-    }
-
-    internal class FormulaTypeConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(FormulaType) || t == typeof(FormulaType?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "F_ASC" => FormulaType.FAsc,
-                "F_BUILDING" => FormulaType.FBuilding,
-                "F_EVOLVE" => FormulaType.FEvolve,
-                "F_SKILL" => FormulaType.FSkill,
-                _ => throw new Exception("Cannot unmarshal type FormulaType"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (FormulaType)untypedValue;
-            switch (value)
-            {
-                case FormulaType.FAsc:
-                    serializer.Serialize(writer, "F_ASC");
-                    return;
-                case FormulaType.FBuilding:
-                    serializer.Serialize(writer, "F_BUILDING");
-                    return;
-                case FormulaType.FEvolve:
-                    serializer.Serialize(writer, "F_EVOLVE");
-                    return;
-                case FormulaType.FSkill:
-                    serializer.Serialize(writer, "F_SKILL");
-                    return;
-            }
-            throw new Exception("Cannot marshal type FormulaType");
-        }
-
-        public static readonly FormulaTypeConverter Singleton = new FormulaTypeConverter();
-    }
-
-    internal class StoreyTypeConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(StoreyType) || t == typeof(StoreyType?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            return value switch
-            {
-                "UPGROUND" => StoreyType.UPGROUND,
-                "DOWNGROUND" => StoreyType.DOWNGROUND,
-                _ => throw new Exception("Cannot unmarshal type StoreyType"),
-            };
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (StoreyType)untypedValue;
-            switch (value)
-            {
-                case StoreyType.UPGROUND:
-                    serializer.Serialize(writer, "UPGROUND");
-                    return;
-                case StoreyType.DOWNGROUND:
-                    serializer.Serialize(writer, "DOWNGROUND");
-                    return;
-            }
-            throw new Exception("Cannot marshal type StoreyType");
-        }
-
-        public static readonly StoreyTypeConverter Singleton = new StoreyTypeConverter();
     }
 }
