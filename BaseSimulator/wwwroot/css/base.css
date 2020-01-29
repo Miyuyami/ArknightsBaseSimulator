@@ -1,20 +1,14 @@
-﻿.container {
-    max-width: 1800px;
+﻿.base {
+    z-index: 0;
 }
 
-.room {
-    width: 100%;
-    height: 100%;
-}
-
-.base {
-    position: relative;
+.base-menu {
+    z-index: 1;
+    position: fixed;
 }
 
 .slot {
     --one-unit: 50px;
-    position: absolute;
-    padding: 2px;
 }
 
     .slot.width1 {

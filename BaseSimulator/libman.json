@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "jquery@3.4.1",
+      "destination": "wwwroot/lib/jquery/",
+      "files": [
+        "jquery.min.js"
+      ]
+    },
+    {
+      "library": "bootstrap-switch@3.3.4",
+      "destination": "wwwroot/lib/bootstrap-switch/",
+      "files": [
+        "js/bootstrap-switch.min.js",
+        "css/bootstrap3/bootstrap-switch.min.css"
+      ]
+    }
+  ]
+}

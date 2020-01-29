@@ -1,12 +1,25 @@
 ﻿@page "/"
 
 @using Arknights.BaseSimulator.Data
+@using Arknights.Data;
 @inject BaseService BaseService
+@inject IJSRuntime JSRuntime
 
-<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="/css/base.css" />
 
-<div class="base">
-    <div>
+<div class="mt-5 position-relative">
+    <div class="base-menu">
+        <div class="row p-1">
+            <button class="col btn btn-secondary m-auto">Overview</button>
+        </div>
+        <div class="row p-1">
+            <div class="col btn btn-secondary" style="cursor: pointer" @onclick="OnClickBuildMode">
+                Build Mode
+                <input name="BuildModeCheckbox" type="checkbox" @ref="BuildModeCheckbox" checked />
+            </div>
+        </div>
+    </div>
+    <div class="base">
         @foreach (var slot in BaseService.Layout.Slots.Values)
         {
             string widthClass = $"width{slot.Size.Col}";
@@ -15,13 +28,32 @@
             string leftPixels = $"{BaseService.OneUnitSize * slot.Offset.Col}px";
             string topPixels = $"{BaseService.OneUnitSize * Math.Abs(slot.Offset.Row + slot.Size.Row - BaseService.MaxLayoutHeight)}px";
 
-            <div class="slot @widthClass @heightClass" style="left: @leftPixels; top: @topPixels">
-                <button class="btn btn-dark room">@slot.Category</button>
+            <div class="slot p-1 position-absolute @widthClass @heightClass" style="left: @leftPixels; top: @topPixels">
+                <button class="btn btn-dark w-100 h-100" @onclick="@(e => OnClickSlot(slot))">@slot.Category</button>
             </div>
         }
     </div>
 </div>
 
 @code {
+    private ElementReference BuildModeCheckbox;
 
+    private void OnClickSlot(Slot slot)
+    {
+
+    }
+
+    private async Task OnClickBuildMode()
+    {
+        await this.JSRuntime.InvokeVoidAsync("BootstrapSwitch", this.BuildModeCheckbox, "toggleState");
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await this.JSRuntime.InvokeVoidAsync("BootstrapSwitch", this.BuildModeCheckbox, "state", false);
+        }
+    }
 }
