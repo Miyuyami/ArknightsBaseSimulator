@@ -1,0 +1,43 @@
+﻿@inherits AbstractClickableBaseSlot
+
+@inject IModalService ModalService
+
+@{
+    <div class="btn btn-dark h-100 w-100 d-flex align-items-center justify-content-center" @onclick="this.InternalOnClick">
+        @{
+            if (this.IsInBuildMode &&
+                this.CanBuild)
+            {
+                <div>🧱 (cleanable)</div>
+            }
+            else
+            {
+                <div>🧱</div>
+            }
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public LockedSlotData Data { get; set; }
+
+    private bool CanBuild => this.Game.CanUnlock(this.Data);
+
+    private async Task InternalOnClick(MouseEventArgs e)
+    {
+        if (this.IsInBuildMode)
+        {
+            var parameters = new ModalParameters();
+            parameters.Add("Game", this.Game);
+            parameters.Add("Data", this.Data);
+            var options = new ModalOptions()
+            {
+                Position = "blazored-modal-center",
+            };
+            this.ModalService.Show<UnlockBaseSlotModal>("", parameters, options);
+        }
+
+        await this.OnClick.InvokeAsync(this.Data);
+    }
+}

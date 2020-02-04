@@ -1,0 +1,17 @@
+﻿@inherits AbstractClickableBaseSlot
+
+@{
+    <div class="row btn btn-light w-100 h-100">
+        <div class="col-8">
+            @this.Data.RoomType
+        </div>
+        <div class="col-4">
+            @this.Data.Level
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public RoomSlotData Data { get; set; }
+}

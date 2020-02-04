@@ -1,0 +1,38 @@
+﻿@inject IJSRuntime JSRuntime
+
+<div class="row p-1">
+    <button class="col btn btn-secondary m-auto">Overview</button>
+</div>
+<div class="row p-1">
+    <div class="col btn btn-secondary" style="cursor: pointer" @onclick="@OnClickBuildMode">
+        Build Mode
+        <input name="BuildModeCheckbox" type="checkbox" @ref="@BuildModeCheckbox" checked />
+    </div>
+</div>
+
+@code {
+    private ElementReference BuildModeCheckbox;
+
+    [Parameter]
+    public EventCallback<bool> OnBuildModeChanged { get; set; }
+
+    private async Task OnClickBuildMode()
+    {
+        await this.JSRuntime.InvokeVoidAsync("BootstrapSwitch", this.BuildModeCheckbox, "toggleState");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await this.JSRuntime.InvokeVoidAsync("BootstrapSwitch", this.BuildModeCheckbox, "state", false);
+            await this.JSRuntime.InvokeVoidAsync("SetOnBootstrapSwitch", this.BuildModeCheckbox, DotNetObjectReference.Create(this));
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnSwitchChange(bool state)
+    {
+        await this.OnBuildModeChanged.InvokeAsync(state);
+    }
+}

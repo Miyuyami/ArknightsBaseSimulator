@@ -1,0 +1,44 @@
+﻿@inherits AbstractClickableBaseSlot
+
+@{
+    var slot = this.GetSlot();
+    string widthClass = $"width{slot.Size.Col}";
+    string heightClass = $"height{slot.Size.Row}";
+
+    string leftPixels = $"{Game.OneSlotUnitSize * slot.Offset.Col}px";
+    string topPixels = $"{Game.OneSlotUnitSize * Math.Abs(slot.Offset.Row + slot.Size.Row - this.Game.MaxLayoutHeight)}px";
+
+    <div class="slot p-1 position-absolute @widthClass @heightClass" style="left: @leftPixels; top: @topPixels">
+        <div class="w-100 h-100">
+            @if (this.Data is LockedSlotData lockedSlotData)
+            {
+                <LockedBaseSlot Id="@this.Id" Data="@lockedSlotData" Game="@this.Game" IsInBuildMode="@this.IsInBuildMode" OnClick="@this.OnClick" />
+            }
+            else if (this.Data is EmptySlotData emptySlotData)
+            {
+                <EmptyBaseSlot Id="@this.Id" Data="@emptySlotData" Game="@this.Game" IsInBuildMode="@this.IsInBuildMode" OnClick="@this.OnClick" />
+            }
+            else if (this.Data is RoomSlotData roomSlotData)
+            {
+                <RoomBaseSlot Id="@this.Id" Data="@roomSlotData" Game="@this.Game" IsInBuildMode="@this.IsInBuildMode" OnClick="@this.OnClick" />
+            }
+            else
+            {
+                <div>
+                    Unknown slot
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public SlotData Data { get; set; }
+
+    private Slot GetSlot()
+    {
+        this.Game.TryGetSlot(this.Data, out Slot slot);
+        return slot;
+    }
+}

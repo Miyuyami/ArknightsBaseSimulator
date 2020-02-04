@@ -1,6 +1,8 @@
 using System.IO;
 using Arknights.BaseSimulator.Data;
 using Arknights.Data;
+using Blazored.LocalStorage;
+using Blazored.Modal;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -24,8 +26,12 @@ namespace Arknights.BaseSimulator
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+
+            services.AddBlazoredLocalStorage();
+            services.AddBlazoredModal();
+
             services.AddSingleton(BaseData.FromJson(File.ReadAllText("GameData/building_data.json")));
-            services.AddSingleton<BaseService>();
+            services.AddSingleton<GameService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

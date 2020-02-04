@@ -1,59 +1,79 @@
 ﻿@page "/"
 
-@using Arknights.BaseSimulator.Data
-@using Arknights.Data;
-@inject BaseService BaseService
-@inject IJSRuntime JSRuntime
+@using Blazored.LocalStorage
+
+@inject GameService GameService
+@inject ILocalStorageService LocalStorage
 
 <link rel="stylesheet" href="/css/base.css" />
 
-<div class="mt-5 position-relative">
-    <div class="base-menu">
-        <div class="row p-1">
-            <button class="col btn btn-secondary m-auto">Overview</button>
+@if (this.Game == null)
+{
+    <div class="row h-100">
+        <h1 class="col m-auto text-center">Loading...</h1>
+    </div>
+}
+else
+{
+    <div class="mt-5 position-relative">
+        <div class="base-menu position-fixed">
+            <BaseMenu @ref="@this.BaseMenu" OnBuildModeChanged="@this.OnBuildModeChanged" />
         </div>
-        <div class="row p-1">
-            <div class="col btn btn-secondary" style="cursor: pointer" @onclick="OnClickBuildMode">
-                Build Mode
-                <input name="BuildModeCheckbox" type="checkbox" @ref="BuildModeCheckbox" checked />
-            </div>
+        <div class="base">
+            @{
+                var maxLayoutHeight = this.Game.MaxLayoutHeight;
+
+                foreach (var slot in this.Game.SaveData.Slots)
+                {
+                    <BaseSlot Id="@slot.Key" Data="@slot.Value" Game="@this.Game" IsInBuildMode="@this.IsInBuildMode" OnClick="@OnClickSlot" />
+                }
+            }
         </div>
     </div>
-    <div class="base">
-        @foreach (var slot in BaseService.Layout.Slots.Values)
-        {
-            string widthClass = $"width{slot.Size.Col}";
-            string heightClass = $"height{slot.Size.Row}";
-
-            string leftPixels = $"{BaseService.OneUnitSize * slot.Offset.Col}px";
-            string topPixels = $"{BaseService.OneUnitSize * Math.Abs(slot.Offset.Row + slot.Size.Row - BaseService.MaxLayoutHeight)}px";
-
-            <div class="slot p-1 position-absolute @widthClass @heightClass" style="left: @leftPixels; top: @topPixels">
-                <button class="btn btn-dark w-100 h-100" @onclick="@(e => OnClickSlot(slot))">@slot.Category</button>
-            </div>
-        }
-    </div>
-</div>
+}
 
 @code {
-    private ElementReference BuildModeCheckbox;
+    private const string SaveQueryKey = "data";
 
-    private void OnClickSlot(Slot slot)
+    private bool IsInBuildMode { get; set; }
+
+    private Game Game;
+    private BaseMenu BaseMenu;
+
+    private async Task OnClickSlot(SlotData slotData)
     {
+        if (true)
+        {
+            //this.Game.Build(slot);
+        }
+        else
+        {
 
+        }
+
+        //await this.UpdateSaveAsync();
     }
 
-    private async Task OnClickBuildMode()
+    private void OnBuildModeChanged(bool state)
     {
-        await this.JSRuntime.InvokeVoidAsync("BootstrapSwitch", this.BuildModeCheckbox, "toggleState");
+        this.IsInBuildMode = state;
     }
 
+    private async Task UpdateSaveAsync()
+    {
+        var saveData = this.GameService.Serialize(this.Game);
+        await this.LocalStorage.SetItemAsync(SaveQueryKey, saveData);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await this.JSRuntime.InvokeVoidAsync("BootstrapSwitch", this.BuildModeCheckbox, "state", false);
+            var saveData = await this.LocalStorage.GetItemAsync<string>(SaveQueryKey);
+
+            this.Game = this.GameService.CreateGame(saveData);
+
+            this.StateHasChanged();
         }
     }
 }

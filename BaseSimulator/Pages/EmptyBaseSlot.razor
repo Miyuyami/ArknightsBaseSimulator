@@ -1,0 +1,60 @@
+﻿@inherits AbstractClickableBaseSlot
+
+@inject IModalService ModalService
+
+@{
+    <div class="btn btn-dark h-100 w-100 d-flex align-items-center justify-content-center">
+        @{
+            Func<MouseEventArgs, Task> f;
+            if (this.IsInBuildMode)
+            {
+                f = this.InternalOnClickBuild;
+            }
+            else
+            {
+                f = this.InternalOnClick;
+            }
+
+            if (this.CanBuild)
+            {
+                <div @onclick="this.InternalOnClickBuild">🧱 (cleanable)</div>
+            }
+            else
+            {
+                <div @onclick="this.InternalOnClick">🧱</div>
+            }
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public EmptySlotData Data { get; set; }
+
+    private bool CanBuild => this.Game.CanUnlock(this.Data);
+
+    private Slot GetSlot()
+    {
+        this.Game.TryGetSlot(this.Data, out Slot slot);
+        return slot;
+    }
+
+    private async Task InternalOnClickBuild(MouseEventArgs e)
+    {
+        //var parameters = new ModalParameters();
+        //parameters.Add("Game", this.Game);
+        //parameters.Add("Data", this.Data);
+        //var options = new ModalOptions()
+        //{
+        //    Position = "blazored-modal-center",
+        //};
+        //this.ModalService.Show<AddRoomBaseSlotModal>("", parameters, options);
+
+        await this.OnClick.InvokeAsync(this.Data);
+    }
+
+    private async Task InternalOnClick(MouseEventArgs e)
+    {
+        await this.OnClick.InvokeAsync(this.Data);
+    }
+}
