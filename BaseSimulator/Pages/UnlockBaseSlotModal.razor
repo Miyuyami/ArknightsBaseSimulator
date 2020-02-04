@@ -8,29 +8,44 @@
                 <CascadingValue Value="@slot">
                     @if (this.Game.CanUnlock(slot))
                     {
-                        // unlock
+                        <div class="row">
+                            <div class="col divider-right">
+                                <RoomDisplay />
+                            </div>
+                            <div class="col">
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col btn btn-dark" @onclick="Cancel">
+                                ❌ Cancel
+                            </div>
+                            <div class="col btn btn-dark" @onclick="Confirm">
+                                ✔ Confirm
+                            </div>
+                        </div>
                     }
                     else if (this.Game.DoesMeetUnlockRequirements(slot))
                     {
                         <div class="row">
                             <div class="col">The slot is not connected to the control center. Unable to clean.</div>
                         </div>
-                        <div class="row w-25">
-                            <div class="btn btn-dark">
-                                ✔
+                        <div class="row">
+                            <div class="col btn btn-dark" @onclick="Cancel">
+                                ✔ OK
                             </div>
                         </div>
                     }
                     else
                     {
-                        <div class="row flex-fill">
+                        <div class="row">
                             <div class="col">
-                                <BuildingRequirements Title="No signal detected on this floor. Unable to clean." />
+                                <RoomRequirements Title="No signal detected on this floor. Unable to clean." />
                             </div>
                         </div>
                         <div class="row">
-                            <div class="btn btn-dark h-25 w-100" @onclick="Cancel">
-                                ✔
+                            <div class="col btn btn-dark" @onclick="Cancel">
+                                ✔ OK
                             </div>
                         </div>
                     }
@@ -55,6 +70,11 @@
     {
         this.Game = this.Parameters.Get<Game>("Game");
         this.Data = this.Parameters.Get<LockedSlotData>("Data");
+    }
+
+    private void Confirm()
+    {
+        this.ModalService.Close(ModalResult.Ok<object>(null));
     }
 
     private void Cancel()

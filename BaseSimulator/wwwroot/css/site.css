@@ -148,3 +148,7 @@ app {
         display: block;
     }
 }
+
+.divider-right {
+    border-right: 1px dashed black;
+}

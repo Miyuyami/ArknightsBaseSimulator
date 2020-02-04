@@ -43,9 +43,9 @@ namespace Arknights.BaseSimulator.Data
         public IEnumerable<Room> GetPossibleBuildRooms(Slot slot) => this.BaseData.Rooms.Values.Where(r =>
             slot.Category switch
             {
-                BuildingCategory.Elevator => r.Id == RoomType.Elevator,
-                BuildingCategory.Corridor => r.Id == RoomType.Corridor,
-                BuildingCategory.Special => r.Id == RoomType.Control,
+                RoomCategory.Elevator => r.Id == RoomType.Elevator,
+                RoomCategory.Corridor => r.Id == RoomType.Corridor,
+                RoomCategory.Special => r.Id == RoomType.Control,
                 _ => r.Category == slot.Category,
             });
 

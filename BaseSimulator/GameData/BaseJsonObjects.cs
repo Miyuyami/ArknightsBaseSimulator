@@ -230,7 +230,7 @@ namespace Arknights.Data
         [J("provideLabor")] public int ProvideLabor { get; set; }
         [J("size")] public Position Size { get; set; }
         [J("offset")] public Position Offset { get; set; }
-        [J("category")] public BuildingCategory Category { get; set; }
+        [J("category")] public RoomCategory Category { get; set; }
         [J("storeyId")] public StoreyId StoreyId { get; set; }
     }
 
@@ -415,7 +415,7 @@ namespace Arknights.Data
         [J("defaultPrefabId")] public string DefaultPrefabId { get; set; }
         [J("canLevelDown")] public bool CanLevelDown { get; set; }
         [J("maxCount")] public int MaxCount { get; set; }
-        [J("category")] public BuildingCategory Category { get; set; }
+        [J("category")] public RoomCategory Category { get; set; }
         [J("size")] public Position Size { get; set; }
         [J("phases")] public List<RoomPhase> Phases { get; set; }
     }
@@ -579,7 +579,7 @@ namespace Arknights.Data
     };
 
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum BuildingCategory
+    public enum RoomCategory
     {
         [EnumMember(Value = "CORRIDOR")] Corridor,
         [EnumMember(Value = "CUSTOM")] Custom,
