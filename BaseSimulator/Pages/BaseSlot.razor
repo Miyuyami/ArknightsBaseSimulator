@@ -12,15 +12,21 @@
         <div class="w-100 h-100">
             @if (this.Data is LockedSlotData lockedSlotData)
             {
-                <LockedBaseSlot Id="@this.Id" Data="@lockedSlotData" Game="@this.Game" IsInBuildMode="@this.IsInBuildMode" OnClick="@this.OnClick" />
+                <CascadingValue Value="@lockedSlotData">
+                    <LockedBaseSlot OnClick="@this.OnClick" />
+                </CascadingValue>
             }
             else if (this.Data is EmptySlotData emptySlotData)
             {
-                <EmptyBaseSlot Id="@this.Id" Data="@emptySlotData" Game="@this.Game" IsInBuildMode="@this.IsInBuildMode" OnClick="@this.OnClick" />
+                <CascadingValue Value="@emptySlotData">
+                    <EmptyBaseSlot OnClick="@this.OnClick" />
+                </CascadingValue>
             }
             else if (this.Data is RoomSlotData roomSlotData)
             {
-                <RoomBaseSlot Id="@this.Id" Data="@roomSlotData" Game="@this.Game" IsInBuildMode="@this.IsInBuildMode" OnClick="@this.OnClick" />
+                <CascadingValue Value="@roomSlotData">
+                    <RoomBaseSlot OnClick="@this.OnClick" />
+                </CascadingValue>
             }
             else
             {
@@ -33,7 +39,7 @@
 }
 
 @code {
-    [Parameter]
+    [CascadingParameter]
     public SlotData Data { get; set; }
 
     private Slot GetSlot()

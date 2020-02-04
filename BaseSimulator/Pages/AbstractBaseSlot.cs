@@ -1,18 +1,17 @@
 ﻿using Arknights.BaseSimulator.Data;
-using Arknights.Data;
 using Microsoft.AspNetCore.Components;
 
 namespace Arknights.BaseSimulator
 {
     public abstract class AbstractBaseSlot : ComponentBase
     {
-        [Parameter]
+        [CascadingParameter]
         public string Id { get; set; }
 
-        [Parameter]
+        [CascadingParameter]
         public Game Game { get; set; }
 
-        [Parameter]
+        [CascadingParameter]
         public bool IsInBuildMode { get; set; }
     }
 

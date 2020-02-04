@@ -25,7 +25,15 @@ else
 
                 foreach (var slot in this.Game.SaveData.Slots)
                 {
-                    <BaseSlot Id="@slot.Key" Data="@slot.Value" Game="@this.Game" IsInBuildMode="@this.IsInBuildMode" OnClick="@OnClickSlot" />
+                    <CascadingValue Value="@this.Game">
+                        <CascadingValue Value="@this.IsInBuildMode">
+                            <CascadingValue Value="@slot.Key">
+                                <CascadingValue Value="@slot.Value">
+                                    <BaseSlot OnClick="@this.OnClickSlot" />
+                                </CascadingValue>
+                            </CascadingValue>
+                        </CascadingValue>
+                    </CascadingValue>
                 }
             }
         </div>

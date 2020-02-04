@@ -1,68 +1,47 @@
 ﻿@inject IModalService ModalService
 
 <div class="container-fluid d-flex flex-column">
-    @{
-        if (this.Game.TryGetSlot(this.Data, out Slot slot))
-        {
-            if (this.Game.CanUnlock(slot))
+    <CascadingValue Value="@this.Game">
+        @{
+            if (this.Game.TryGetSlot(this.Data, out Slot slot))
             {
-                // unlock
-            }
-            else if (this.Game.DoesMeetUnlockRequirements(slot))
-            {
-                <div class="row">
-                    <div class="col">The slot is not connected to the control center. Unable to clean.</div>
-                </div>
-                <div class="row w-25">
-                    <div class="btn btn-dark">
-                        ✔
-                    </div>
-                </div>
+                <CascadingValue Value="@slot">
+                    @if (this.Game.CanUnlock(slot))
+                    {
+                        // unlock
+                    }
+                    else if (this.Game.DoesMeetUnlockRequirements(slot))
+                    {
+                        <div class="row">
+                            <div class="col">The slot is not connected to the control center. Unable to clean.</div>
+                        </div>
+                        <div class="row w-25">
+                            <div class="btn btn-dark">
+                                ✔
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row flex-fill">
+                            <div class="col">
+                                <BuildingRequirements Title="No signal detected on this floor. Unable to clean." />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="btn btn-dark h-25 w-100" @onclick="Cancel">
+                                ✔
+                            </div>
+                        </div>
+                    }
+                </CascadingValue>
             }
             else
             {
-                <div class="row flex-fill">
-                    <div class="col">
-                        <div class="row">
-                            <div class="col">No signal detected on this floor. Unable to clean.</div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Facility</th>
-                                            <th scope="col">Level Required</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @{
-                                            foreach (var req in this.Game.GetUnlockRequirements(slot))
-                                            {
-                                                <tr>
-                                                    <td>@req.RoomType</td>
-                                                    <td>@req.Level</td>
-                                                </tr>
-                                            }
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="btn btn-dark h-25 w-100" @onclick="Cancel">
-                        ✔
-                    </div>
-                </div>
+                <div>Can't find slot data</div>
             }
         }
-        else
-        {
-            <div>Can't find slot data</div>
-        }
-    }
+    </CascadingValue>
 </div>
 
 @code {

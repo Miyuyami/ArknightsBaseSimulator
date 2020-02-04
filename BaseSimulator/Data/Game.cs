@@ -162,7 +162,7 @@ namespace Arknights.BaseSimulator.Data
         {
             var storey = this.GetStorey(slot);
 
-            yield return new BuildRequirement(RoomType.Control, storey.UnlockControlLevel);
+            yield return new BuildRequirement(RoomType.Control, storey.UnlockControlLevel, 1);
         }
 
         //private bool DoesMeetRequirements(Slot slot, Room room)
@@ -215,11 +215,13 @@ namespace Arknights.BaseSimulator.Data
     {
         public RoomType RoomType { get; }
         public int Level { get; }
+        public int Count { get; }
 
-        public BuildRequirement(RoomType roomType, int level)
+        public BuildRequirement(RoomType roomType, int level, int count)
         {
             this.RoomType = roomType;
             this.Level = level;
+            this.Count = count;
         }
     }
 }

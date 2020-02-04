@@ -1,0 +1,34 @@
+﻿<div class="row">
+    <div class="col">@this.Title</div>
+</div>
+<div class="row">
+    <div class="col">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Facility</th>
+                    <th scope="col">Level</th>
+                    <th scope="col">Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    foreach (var req in this.Game.GetUnlockRequirements(this.Slot))
+                    {
+                        <tr>
+                            <td>@req.RoomType</td>
+                            <td>@req.Level</td>
+                            <td>@req.Count</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] public Game Game { get; set; }
+    [CascadingParameter] public Slot Slot { get; set; }
+    [Parameter] public string Title { get; set; }
+}
