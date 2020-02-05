@@ -1,0 +1,47 @@
+﻿@{
+    var cleanCosts = this.Game.GetCleanCosts(this.Slot).ToList();
+    var cleanCostsCount = cleanCosts.Where(c => c.Count > 0).Count();
+    var colspan = Math.Max(cleanCostsCount, 1);
+
+    <div class="row">
+        <div class="col">
+            Consume the following materials to clean the room?
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col" colspan="@colspan">Materials Needed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        @{
+                            if (cleanCostsCount == 0)
+                            {
+                                <td>No cost. Cleaning is free.</td>
+                            }
+                            else
+                            {
+                                foreach (var cleanCost in cleanCosts)
+                                {
+                                    var itemCount = this.Game.GetItemCount(cleanCost.ItemId);
+                                    var itemName = this.Game.GetItemName(cleanCost.ItemId);
+
+                                    <RoomBuildCostEntry Name="@itemName" AvailableCount="@itemCount" NeededCount="cleanCost.Count" />
+                                }
+                            }
+                        }
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter] public Game Game { get; set; }
+    [CascadingParameter] public Slot Slot { get; set; }
+}
