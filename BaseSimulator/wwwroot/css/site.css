@@ -150,5 +150,5 @@ app {
 }
 
 .divider-right {
-    border-right: 1px dashed black;
+    border-right: thin solid black;
 }

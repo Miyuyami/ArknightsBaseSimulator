@@ -1,6 +1,6 @@
 ﻿@inject IModalService ModalService
 
-<div class="container-fluid d-flex flex-column text-nowrap">
+<div class="container-fluid d-flex flex-column" style="width: 80em; height: 20em;">
     <CascadingValue Value="@this.Game">
         @{
             if (this.Game.TryGetSlot(this.Data, out Slot slot))
@@ -8,11 +8,11 @@
                 <CascadingValue Value="@slot">
                     @if (this.Game.CanUnlock(slot))
                     {
-                        <div class="row">
-                            <div class="col divider-right">
+                        <div class="row h-100">
+                            <div class="col-6 divider-right">
                                 <SlotUnlockChange />
                             </div>
-                            <div class="col">
+                            <div class="col-6">
                                 <SlotUnlockCost />
                             </div>
                         </div>
@@ -27,7 +27,7 @@
                     }
                     else if (this.Game.DoesMeetUnlockRequirements(slot))
                     {
-                        <div class="row">
+                        <div class="row h-100">
                             <div class="col">The slot is not connected to the control center. Unable to clean.</div>
                         </div>
                         <div class="row">
@@ -38,7 +38,7 @@
                     }
                     else
                     {
-                        <div class="row">
+                        <div class="row h-100">
                             <div class="col">
                                 <RoomRequirements Title="No signal detected on this floor. Unable to clean." />
                             </div>
