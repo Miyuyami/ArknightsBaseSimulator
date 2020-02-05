@@ -158,7 +158,7 @@ namespace Arknights.Data
         [J("usage")] public string Usage { get; set; }
         [J("description")] public string Description { get; set; }
         [J("obtainApproach")] public string ObtainApproach { get; set; }
-        [J("processedProductId")] [JsonConverter(typeof(ParseStringConverter))] public int ProcessedProductId { get; set; }
+        [J("processedProductId")] public string ProcessedProductId { get; set; }
         [J("processedProductCount")] public int ProcessedProductCount { get; set; }
         [J("processedByProductPercentage")] public int ProcessedByProductPercentage { get; set; }
         [J("processedByProductGroup")] public List<object> ProcessedByProductGroup { get; set; }
@@ -217,7 +217,7 @@ namespace Arknights.Data
 
     public class Cost
     {
-        [J("id")] [JsonConverter(typeof(ParseStringConverter))] public int Id { get; set; }
+        [J("id")] public string ItemId { get; set; }
         [J("count")] public int Count { get; set; }
         [J("type")] public CostType Type { get; set; }
     }
@@ -365,8 +365,8 @@ namespace Arknights.Data
 
     public class ManufactFormula
     {
-        [J("formulaId")] [JsonConverter(typeof(ParseStringConverter))] public int FormulaId { get; set; }
-        [J("itemId")] [JsonConverter(typeof(ParseStringConverter))] public int ItemId { get; set; }
+        [J("formulaId")] public string FormulaId { get; set; }
+        [J("itemId")] public string ItemId { get; set; }
         [J("count")] public int Count { get; set; }
         [J("weight")] public int Weight { get; set; }
         [J("costPoint")] public int CostPoint { get; set; }
@@ -440,9 +440,9 @@ namespace Arknights.Data
 
     public class WorkshopFormula
     {
-        [J("formulaId")] [JsonConverter(typeof(ParseStringConverter))] public int FormulaId { get; set; }
+        [J("formulaId")] public string FormulaId { get; set; }
         [J("rarity")] public int Rarity { get; set; }
-        [J("itemId")] [JsonConverter(typeof(ParseStringConverter))] public int ItemId { get; set; }
+        [J("itemId")] public string ItemId { get; set; }
         [J("count")] public int Count { get; set; }
         [J("goldCost")] public int GoldCost { get; set; }
         [J("apCost")] public int ApCost { get; set; }
@@ -458,7 +458,7 @@ namespace Arknights.Data
     public class ExtraOutcomeGroup
     {
         [J("weight")] public int Weight { get; set; }
-        [J("itemId")] [JsonConverter(typeof(ParseStringConverter))] public int ItemId { get; set; }
+        [J("itemId")] public string ItemId { get; set; }
         [J("itemCount")] public int ItemCount { get; set; }
     }
 

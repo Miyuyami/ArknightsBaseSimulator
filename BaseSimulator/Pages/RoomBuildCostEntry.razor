@@ -1,0 +1,22 @@
+﻿@{
+    var textClass = (this.AvailableCount < this.NeededCount) ? "text-danger" : "";
+
+    <td>
+        <div class="row">
+            <div class="col">
+                @this.Name
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="@textClass">@this.AvailableCount</div>/<div>@this.NeededCount</div>
+            </div>
+        </div>
+    </td>
+}
+
+@code {
+    [Parameter] public string Name { get; set; }
+    [Parameter] public int AvailableCount { get; set; }
+    [Parameter] public int NeededCount { get; set; }
+}

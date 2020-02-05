@@ -1,0 +1,19 @@
+﻿@{
+    <td>
+        <div class="row">
+            <div class="col">
+                @this.Name
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div>@this.RefundCount</div>
+            </div>
+        </div>
+    </td>
+}
+
+@code {
+    [Parameter] public string Name { get; set; }
+    [Parameter] public int RefundCount { get; set; }
+}

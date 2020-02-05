@@ -1,12 +1,13 @@
 ﻿@{
-    var buildCosts = this.Game.GetBuildCosts(this.Slot).ToList();
-    var buildCostsCount = buildCosts.Count;
-    var colspan = Math.Max(buildCostsCount, 1);
-
+    int colspan;
     switch (this.Room.Id)
     {
         case RoomType.Corridor:
         case RoomType.Elevator:
+            var cleanCosts = this.Game.GetCleanCosts(this.Slot).ToList();
+            var cleanCostsCount = cleanCosts.Where(c => c.Count > 0).Count();
+            colspan = Math.Max(cleanCostsCount, 1);
+
             <div class="row">
                 <div class="col">
                     Consume the following materials to clean the room?
@@ -23,29 +24,18 @@
                         <tbody>
                             <tr>
                                 @{
-                                    if (buildCostsCount == 0)
+                                    if (cleanCostsCount == 0)
                                     {
-                                        <td>No cost</td>
+                                        <td>No cost. Cleaning is free.</td>
                                     }
                                     else
                                     {
-                                        foreach (var buildCost in buildCosts)
+                                        foreach (var cleanCost in cleanCosts)
                                         {
-                                            var itemCount = this.Game.GetItemCount(buildCost.Id);
-                                            var textClass = (itemCount < buildCost.Count) ? "text-danger" : "";
+                                            var itemCount = this.Game.GetItemCount(cleanCost.ItemId);
+                                            var itemName = this.Game.GetItemName(cleanCost.ItemId);
 
-                                            <td>
-                                                <div class="row">
-                                                    <div class="col">
-                                                        @buildCost.Id
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col">
-                                                        <div class="@textClass">@itemCount</div>/<div>@buildCost.Count</div>
-                                                    </div>
-                                                </div>
-                                            </td>
+                                            <RoomBuildCostEntry Name="@itemName" AvailableCount="@itemCount" NeededCount="cleanCost.Count" />
                                         }
                                     }
                                 }
@@ -56,6 +46,64 @@
             </div>
             break;
         default:
+            if (this.IsDowngrading)
+            {
+
+            }
+            else
+            {
+                var upgradeCosts = this.Game.GetRoomUpgradeCosts(this.Room);
+                var itemCosts = upgradeCosts.Items;
+                var itemsCount = itemCosts.Where(c => c.Count > 0).Count();
+                var timeCost = upgradeCosts.Time;
+                var timeCount = 0; // timeCost > 0 ? 1 : 0;
+                var laborCost = upgradeCosts.Labor;
+                var laborCount = 1; // laborCost > 0 ? 1 : 0;
+                var totalCount = itemsCount + timeCount + laborCount;
+                colspan = Math.Max(totalCount, 1);
+
+                <div class="row">
+                    <div class="col">
+                        Consume the following materials to upgrade the facility?
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" colspan="@colspan">Materials Needed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    @{
+                                        if (totalCount == 0)
+                                        {
+                                            <td>No cost. Upgrade is free.</td>
+                                        }
+                                        else
+                                        {
+                                            var itemCount = this.Game.GetLaborCount();
+                                            var itemName = this.Game.GetLaborName();
+
+                                            <RoomBuildCostEntry Name="@itemName" AvailableCount="@itemCount" NeededCount="laborCount" />
+
+                                            foreach (var cleanCost in itemCosts)
+                                            {
+                                                itemCount = this.Game.GetItemCount(cleanCost.ItemId);
+                                                itemName = this.Game.GetItemName(cleanCost.ItemId);
+
+                                                <RoomBuildCostEntry Name="@itemName" AvailableCount="@itemCount" NeededCount="cleanCost.Count" />
+                                            }
+                                        }
+                                    }
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
             break;
     }
 }
@@ -64,4 +112,7 @@
     [CascadingParameter] public Game Game { get; set; }
     [CascadingParameter] public Slot Slot { get; set; }
     [CascadingParameter] public Room Room { get; set; }
+    [Parameter] public bool IsDowngrading { get; set; }
+
+
 }

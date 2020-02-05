@@ -47,7 +47,7 @@ namespace Arknights.BaseSimulator.Data
                                .Where(r => r.RoomType == roomType)
                                .Count();
 
-        public int GetItemCount(int itemId)
+        public int GetItemCount(string itemId)
         {
             if (this.SaveData.Items.TryGetValue(itemId, out ItemData itemData))
             {
@@ -57,17 +57,16 @@ namespace Arknights.BaseSimulator.Data
             return 0;
         }
 
-        public IEnumerable<Cost> GetBuildCosts(Slot slot)
-        {
-            switch (slot.Category)
+        public string GetItemName(string id) =>
+            id switch
             {
-                case RoomCategory.Corridor:
-                case RoomCategory.Elevator:
-                    return this.GetCleanCosts(slot);
-                default:
-                    throw new Exception();
-            }
-        }
+                "3105" => "Mat S",
+                "3131" => "Mat 1",
+                "3132" => "Mat 2",
+                "3133" => "Mat 3",
+                "base_ap" => "Drone",
+                _ => throw new KeyNotFoundException(),
+            };
 
         public IEnumerable<Cost> GetCleanCosts(Slot slot)
         {
@@ -79,13 +78,33 @@ namespace Arknights.BaseSimulator.Data
                                   .Items;
         }
 
-        public int GetCurrentLabor() => this.SaveData.Labor;
+        public BuildCost GetRoomUpgradeCosts(Room room) =>
+            this.GetRoomPhaseCost(room, 1 + this.GetRoomCount(room.Id));
+
+        public IEnumerable<Cost> GetRoomDowngradeRefund(Room room) =>
+            this.GetRoomPhaseCost(room, this.GetRoomCount(room.Id)).Items;
+
+        private BuildCost GetRoomPhaseCost(Room room, int phase)
+        {
+            if (room.Phases.Count < phase)
+            {
+                throw new ArgumentException("Given phase doesn't exist.", nameof(phase));
+            }
+
+            return room.Phases[phase].BuildCost;
+        }
+
+        public string GetLaborName() =>
+            this.GetItemName("base_ap");
+        public int GetLaborCount() =>
+            this.GetItemCount("base_ap");
         public int GetMaxLabor() =>
             this.SaveData.Slots.Values.Where(sd => this.IsUnlocked(sd))
                                       .Select(sd => this.GetSlot(sd.Id))
                                       .Select(s => s.ProvideLabor)
                                       .Sum();
-        public bool IsUnlocked(SlotData slotData) => !(slotData is LockedSlotData);
+        public bool IsUnlocked(SlotData slotData) =>
+            !(slotData is LockedSlotData);
 
         public IEnumerable<Room> GetPossibleBuildRooms(Slot slot) => this.BaseData.Rooms.Values.Where(r =>
             slot.Category switch

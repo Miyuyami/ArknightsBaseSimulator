@@ -7,19 +7,22 @@ using Arknights.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+
 using J = Newtonsoft.Json.JsonPropertyAttribute;
+using R = Newtonsoft.Json.Required;
+using N = Newtonsoft.Json.NullValueHandling;
 
 namespace Arknights.BaseSimulator.Data
 {
     public partial class SaveData
     {
-        [J("slots")] public Dictionary<string, SlotData> Slots { get; set; }
-        [J("labor")] public int Labor { get; set; }
-        [J("items")] public Dictionary<int, ItemData> Items { get; set; }
+        [J("slots", Required = R.Always)] public Dictionary<string, SlotData> Slots { get; set; }
+        [J("items", Required = R.Always)] public Dictionary<string, ItemData> Items { get; set; }
 
         public SaveData()
         {
             this.Slots = new Dictionary<string, SlotData>();
+            this.Items = new Dictionary<string, ItemData>();
         }
     }
 
@@ -69,7 +72,7 @@ namespace Arknights.BaseSimulator.Data
 
     public class ItemData
     {
-        [J("id")] public int Id { get; set; }
+        [J("id")] public string Id { get; set; }
         [J("count")] public int Count { get; set; }
     }
 
@@ -138,7 +141,20 @@ namespace Arknights.BaseSimulator.Data
 
     public partial class SaveData
     {
-        public static SaveData FromJson(string json) => JsonConvert.DeserializeObject<SaveData>(json, Converter.Settings);
+        public static SaveData FromJson(string json)
+        {
+            SaveData saveData;
+            try
+            {
+                saveData = JsonConvert.DeserializeObject<SaveData>(json, Converter.Settings);
+            }
+            catch (JsonSerializationException)
+            {
+                saveData = new SaveData();
+            }
+
+            return saveData;
+        }
     }
 
     public static class Serialize
