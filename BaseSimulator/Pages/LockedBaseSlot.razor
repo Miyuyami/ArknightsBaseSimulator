@@ -34,6 +34,7 @@
             var options = new ModalOptions()
             {
                 Position = "blazored-modal-center",
+                HideCloseButton = true,
             };
             this.ModalService.Show<UnlockBaseSlotModal>("", parameters, options);
         }

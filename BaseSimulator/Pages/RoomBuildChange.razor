@@ -1,0 +1,38 @@
+﻿@switch (this.Room.Id)
+{
+    case RoomType.Corridor:
+    case RoomType.Elevator:
+        <div class="row">
+            <div class="col">
+                Drones obtained
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th scope="row">Drone</th>
+                            <td>
+                                @{ 
+                                    var labor = this.Game.GetCurrentLabor();
+                                    var maxLabor = this.Game.GetMaxLabor();
+
+                                    @((MarkupString)$"{labor}/{maxLabor}⏩{labor + this.Slot.ProvideLabor}/{maxLabor + this.Slot.ProvideLabor}");
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        break;
+    default:
+        break;
+}
+
+@code {
+    [CascadingParameter] public Game Game { get; set; }
+    [CascadingParameter] public Slot Slot { get; set; }
+    [CascadingParameter] public Room Room { get; set; }
+}

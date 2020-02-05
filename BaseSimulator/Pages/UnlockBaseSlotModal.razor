@@ -8,22 +8,24 @@
                 <CascadingValue Value="@slot">
                     @if (this.Game.CanUnlock(slot))
                     {
-                        <div class="row">
-                            <div class="col divider-right">
-                                <RoomDisplay />
+                        <CascadingValue Value="@this.Game.GetPossibleBuildRooms(slot).First()">
+                            <div class="row">
+                                <div class="col divider-right">
+                                    <RoomBuildChange />
+                                </div>
+                                <div class="col">
+                                    <RoomBuildCost />
+                                </div>
                             </div>
-                            <div class="col">
-
+                            <div class="row">
+                                <div class="col btn btn-dark m-1" @onclick="Cancel">
+                                    ❌ Cancel
+                                </div>
+                                <div class="col btn btn-dark m-1" @onclick="Confirm">
+                                    ✔ Confirm
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col btn btn-dark" @onclick="Cancel">
-                                ❌ Cancel
-                            </div>
-                            <div class="col btn btn-dark" @onclick="Confirm">
-                                ✔ Confirm
-                            </div>
-                        </div>
+                        </CascadingValue>
                     }
                     else if (this.Game.DoesMeetUnlockRequirements(slot))
                     {

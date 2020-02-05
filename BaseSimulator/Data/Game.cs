@@ -32,6 +32,8 @@ namespace Arknights.BaseSimulator.Data
             this.MaxLayoutHeight = this.BaseLayout.Slots.Values.Max(s => s.Offset.Row + s.Size.Row);
         }
 
+        private Slot GetSlot(SlotData slotData) => this.BaseLayout.Slots[slotData.Id];
+        private Slot GetSlot(string id) => this.BaseLayout.Slots[id];
         public bool TryGetSlot(SlotData slotData, out Slot slot) => this.BaseLayout.Slots.TryGetValue(slotData.Id, out slot);
 
         private Storey GetStorey(Slot slot) => this.BaseLayout.Storeys[slot.StoreyId];
@@ -39,6 +41,51 @@ namespace Arknights.BaseSimulator.Data
         private bool TryGetSlotData(Slot slot, out SlotData slotData) => this.SaveData.Slots.TryGetValue(slot.Id, out slotData);
         private void SetSlotData(Slot slot, SlotData slotData) => this.SaveData.Slots[slot.Id] = slotData;
         //private bool TryGetRoomData(Slot slot, out RoomData roomData) => this.SaveData.Slots.
+
+        public int GetRoomCount(RoomType roomType) =>
+            this.SaveData.Slots.OfType<RoomSlotData>()
+                               .Where(r => r.RoomType == roomType)
+                               .Count();
+
+        public int GetItemCount(int itemId)
+        {
+            if (this.SaveData.Items.TryGetValue(itemId, out ItemData itemData))
+            {
+                return itemData.Count;
+            }
+
+            return 0;
+        }
+
+        public IEnumerable<Cost> GetBuildCosts(Slot slot)
+        {
+            switch (slot.Category)
+            {
+                case RoomCategory.Corridor:
+                case RoomCategory.Elevator:
+                    return this.GetCleanCosts(slot);
+                default:
+                    throw new Exception();
+            }
+        }
+
+        public IEnumerable<Cost> GetCleanCosts(Slot slot)
+        {
+            var room = this.GetPossibleBuildRooms(slot)
+                           .First();
+
+            return this.BaseLayout.CleanCostTypes[slot.CleanCostId]
+                                  .CleanCostByNumber[this.GetRoomCount(room.Id)]
+                                  .Items;
+        }
+
+        public int GetCurrentLabor() => this.SaveData.Labor;
+        public int GetMaxLabor() =>
+            this.SaveData.Slots.Values.Where(sd => this.IsUnlocked(sd))
+                                      .Select(sd => this.GetSlot(sd.Id))
+                                      .Select(s => s.ProvideLabor)
+                                      .Sum();
+        public bool IsUnlocked(SlotData slotData) => !(slotData is LockedSlotData);
 
         public IEnumerable<Room> GetPossibleBuildRooms(Slot slot) => this.BaseData.Rooms.Values.Where(r =>
             slot.Category switch

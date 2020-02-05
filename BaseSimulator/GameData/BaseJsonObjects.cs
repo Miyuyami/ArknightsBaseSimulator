@@ -207,7 +207,7 @@ namespace Arknights.Data
     public class CleanCostType
     {
         [J("id")] public string Id { get; set; }
-        [J("number")] public Dictionary<string, CleanCost> CleanCostByNumber { get; set; }
+        [J("number")] public Dictionary<int, CleanCost> CleanCostByNumber { get; set; }
     }
 
     public class CleanCost

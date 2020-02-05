@@ -14,6 +14,8 @@ namespace Arknights.BaseSimulator.Data
     public partial class SaveData
     {
         [J("slots")] public Dictionary<string, SlotData> Slots { get; set; }
+        [J("labor")] public int Labor { get; set; }
+        [J("items")] public Dictionary<int, ItemData> Items { get; set; }
 
         public SaveData()
         {
@@ -63,6 +65,12 @@ namespace Arknights.BaseSimulator.Data
             this.RoomType = roomType;
             this.Level = level;
         }
+    }
+
+    public class ItemData
+    {
+        [J("id")] public int Id { get; set; }
+        [J("count")] public int Count { get; set; }
     }
 
     internal static class Converter

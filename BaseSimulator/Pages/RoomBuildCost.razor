@@ -1,0 +1,67 @@
+﻿@{
+    var buildCosts = this.Game.GetBuildCosts(this.Slot).ToList();
+    var buildCostsCount = buildCosts.Count;
+    var colspan = Math.Max(buildCostsCount, 1);
+
+    switch (this.Room.Id)
+    {
+        case RoomType.Corridor:
+        case RoomType.Elevator:
+            <div class="row">
+                <div class="col">
+                    Consume the following materials to clean the room?
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col" colspan="@colspan">Materials Needed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                @{
+                                    if (buildCostsCount == 0)
+                                    {
+                                        <td>No cost</td>
+                                    }
+                                    else
+                                    {
+                                        foreach (var buildCost in buildCosts)
+                                        {
+                                            var itemCount = this.Game.GetItemCount(buildCost.Id);
+                                            var textClass = (itemCount < buildCost.Count) ? "text-danger" : "";
+
+                                            <td>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        @buildCost.Id
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="@textClass">@itemCount</div>/<div>@buildCost.Count</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        }
+                                    }
+                                }
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            break;
+        default:
+            break;
+    }
+}
+
+@code {
+    [CascadingParameter] public Game Game { get; set; }
+    [CascadingParameter] public Slot Slot { get; set; }
+    [CascadingParameter] public Room Room { get; set; }
+}
