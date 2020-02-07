@@ -19,8 +19,7 @@
 }
 
 @code {
-    [CascadingParameter]
-    public LockedSlotData Data { get; set; }
+    [CascadingParameter] public LockedSlotData Data { get; set; }
 
     private bool CanBuild => this.Game.CanUnlock(this.Data);
 

@@ -36,11 +36,13 @@ namespace Arknights.BaseSimulator.Data
         private Slot GetSlot(string id) => this.BaseLayout.Slots[id];
         public bool TryGetSlot(SlotData slotData, out Slot slot) => this.BaseLayout.Slots.TryGetValue(slotData.Id, out slot);
 
+        public IEnumerable<RoomSlotData> GetRoomSlots() => this.SaveData.Slots.OfType<RoomSlotData>();
+        public IEnumerable<RoomSlotData> GetRoomSlots(RoomType roomType) => this.GetRoomSlots().Where(r => r.RoomType == roomType);
+
         private Storey GetStorey(Slot slot) => this.BaseLayout.Storeys[slot.StoreyId];
         private bool TryGetSlotData(string key, out SlotData slotData) => this.SaveData.Slots.TryGetValue(key, out slotData);
         private bool TryGetSlotData(Slot slot, out SlotData slotData) => this.SaveData.Slots.TryGetValue(slot.Id, out slotData);
         private void SetSlotData(Slot slot, SlotData slotData) => this.SaveData.Slots[slot.Id] = slotData;
-        //private bool TryGetRoomData(Slot slot, out RoomData roomData) => this.SaveData.Slots.
 
         public int GetRoomCount(RoomType roomType) =>
             this.SaveData.Slots.OfType<RoomSlotData>()
@@ -74,7 +76,7 @@ namespace Arknights.BaseSimulator.Data
                            .First();
 
             return this.BaseLayout.CleanCostTypes[slot.CleanCostId]
-                                  .CleanCostByNumber[this.GetRoomCount(room.Id)]
+                                  .Number[this.GetRoomCount(room.Id)]
                                   .Items;
         }
 
@@ -115,107 +117,79 @@ namespace Arknights.BaseSimulator.Data
                 _ => r.Category == slot.Category,
             });
 
-        //public bool TryBuildNew(Slot slot, Room room)
-        //{
-        //    if (!this.TryGetSlotData(slot, out SlotData slotData))
-        //    {
-        //        return false;
-        //    }
-
-        //    if (slotData is RoomSlotData)
-        //    {
-        //        return false;
-        //    }
-
-        //    if (!this.GetPossibleBuildRooms(slot)
-        //             .Select(r => r.Id)
-        //             .Contains(room.Id))
-        //    {
-        //        return false;
-        //    }
-
-        //    this.SetSlotData(slot, new RoomSlotData(slot.Id, room.Id, 1));
-        //    return true;
-        //}
-
-        //public bool TryUpgrade(Slot slot)
-        //{
-        //    if (!this.TryGetSlotData(slot, out SlotData slotData))
-        //    {
-        //        return false;
-        //    }
-
-        //    return this.TryUpgrade(slot, slotData.Room);
-        //}
-
-        ////private bool TryUpgrade(Slot slot, Room room)
-        ////{
-        ////    if (this.DoesMeetRequirements(slot, room))
-        ////    {
-        ////        //this.TryUpgradeInternal(slot, slotData);
-        ////    }
-        ////}
-
-        //private bool TryUpgrade(Slot slot, RoomSlotData roomSlotData)
-        //{
-        //    if (!this.CanUpgrade(slot, roomData))
-        //    {
-        //        return false;
-        //    }
-
-        //    roomData.Level++;
-        //    return true;
-        //}
-
-        //public bool TryUnlock(Slot slot)
-        //{
-        //    if (this.CanUnlock(slot))
-        //    {
-        //        this.SaveData.Slots[slot.Id] = new SlotData(slot.Id);
-        //        return true;
-        //    }
-
-        //    return false;
-        //}
-
-        public bool CanUnlock(Slot slot) => this.SlotHelper(this.CanUnlock, slot);
-        public bool CanUnlock(SlotData slotData) => this.SlotHelper(this.CanUnlock, slotData);
-        private bool CanUnlock(Slot slot, SlotData slotData)
+        public bool TryUnlock(Slot slot) => this.SlotHelper<LockedSlotData>(this.TryUnlock, slot);
+        public bool TryUnlock(LockedSlotData slotData) => this.SlotHelper(this.TryUnlock, slotData);
+        public bool TryUnlock(Slot slot, LockedSlotData slotData)
         {
-            if (!(slotData is LockedSlotData lockedSlotData))
+            if (!this.CanUnlock(slot, slotData))
             {
                 return false;
             }
 
-            switch (slot.StoreyId)
-            {
-                case StoreyId.None:
-                    return true;
-                default:
-                    return DoesMeetUnlockRequirements(slot, slotData);
-            }
+            this.SaveData.Slots[slot.Id] = new EmptySlotData(slot.Id);
+            return true;
         }
 
-        public bool DoesMeetUnlockRequirements(Slot slot) => this.SlotHelper(this.DoesMeetUnlockRequirements, slot);
-        public bool DoesMeetUnlockRequirements(SlotData slotData) => this.SlotHelper(this.DoesMeetUnlockRequirements, slotData);
-        private bool DoesMeetUnlockRequirements(Slot slot, SlotData slotData)
+        public bool CanUnlock(Slot slot) => this.SlotHelper<LockedSlotData>(this.CanUnlock, slot);
+        public bool CanUnlock(LockedSlotData slotData) => this.SlotHelper(this.CanUnlock, slotData);
+        private bool CanUnlock(Slot slot, LockedSlotData slotData)
         {
-            var storey = this.GetStorey(slot);
-
-            if (storey.UnlockControlLevel <= 0)
+            return slot.StoreyId switch
             {
-                return this.IsConnected(slot, slotData);
-            }
-
-            if (this.ControlSlotData is RoomSlotData controlSlotData)
-            {
-                return controlSlotData.Level >= storey.UnlockControlLevel;
-            }
-
-            return false;
+                StoreyId.None => true,
+                _ => this.DoesMeetUnlockRequirements(slot, slotData),
+            };
         }
 
-        public bool IsConnected(Slot slot) => this.SlotHelper(this.IsConnected, slot);
+        public bool CanBuild(Slot slot, Room room) => this.SlotHelper<EmptySlotData>(this.CanBuild, slot, room);
+        public bool CanBuild(EmptySlotData slotData, Room room) => this.SlotHelper(this.CanBuild, slotData, room);
+        private bool CanBuild(Slot slot, Room room, EmptySlotData slotData)
+        {
+            if (this.GetRoomSlots(room.Id).Count() >= room.MaxCount)
+            {
+                return false;
+            }
+
+            return this.DoesMeetBuildRequirements(room);
+        }
+
+        public bool CanUpgrade(Slot slot, Room room) => this.SlotHelper<RoomSlotData>(this.CanUpgrade, slot, room);
+        public bool CanUpgrade(RoomSlotData slotData, Room room) => this.SlotHelper(this.CanUpgrade, slotData, room);
+        private bool CanUpgrade(Slot slot, Room room, RoomSlotData slotData)
+        {
+            if (slotData.Level >= room.Phases.Count)
+            {
+                return false;
+            }
+
+            return this.DoesMeetUpgradeRequirements(slot, room, slotData);
+        }
+
+        public bool DoesMeetUnlockRequirements(Slot slot) => this.SlotHelper<LockedSlotData>(this.DoesMeetUnlockRequirements, slot);
+        public bool DoesMeetUnlockRequirements(LockedSlotData slotData) => this.SlotHelper(this.DoesMeetUnlockRequirements, slotData);
+        private bool DoesMeetUnlockRequirements(Slot slot, LockedSlotData slotData) =>
+            this.GetUnlockRequirements(slot, slotData)
+                .All(this.IsRequirementMet);
+
+        private bool IsRequirementMet(BuildRequirement br) =>
+            br.RoomType switch
+            {
+                RoomTypeCondition.None => true,
+                RoomTypeCondition.Functional => this.GetRoomSlots().Where(r => r.Level >= br.Level).Count() >= br.Count,
+                _ => this.GetRoomSlots(br.RoomType.ToRoomType()).Where(r => r.Level >= br.Level).Count() >= br.Count,
+            };
+
+        public bool DoesMeetBuildRequirements(Room room) =>
+            this.GetBuildNewRequirements(room)
+                .All(this.IsRequirementMet);
+
+        public bool DoesMeetUpgradeRequirements(Slot slot, Room room) => this.SlotHelper<RoomSlotData>(this.DoesMeetUpgradeRequirements, slot, room);
+        public bool DoesMeetUpgradeRequirements(RoomSlotData slotData, Room room) => this.SlotHelper(this.DoesMeetUpgradeRequirements, slotData, room);
+        public bool DoesMeetUpgradeRequirements(Slot slot, Room room, RoomSlotData slotData) =>
+            this.GetBuildUpgradeRequirements(slot, room, slotData)
+                .All(this.IsRequirementMet);
+
+        public bool IsConnected(Slot slot) => this.SlotHelper<SlotData>(this.IsConnected, slot);
         public bool IsConnected(SlotData slotData) => this.SlotHelper(this.IsConnected, slotData);
         private bool IsConnected(Slot slot, SlotData slotData)
         {
@@ -228,25 +202,76 @@ namespace Arknights.BaseSimulator.Data
         {
             var storey = this.GetStorey(slot);
 
-            yield return new BuildRequirement(RoomType.Control, storey.UnlockControlLevel, 1);
+            yield return new BuildRequirement(RoomTypeCondition.Control, storey.UnlockControlLevel, 1);
         }
 
-        //private bool DoesMeetRequirements(Slot slot, Room room)
-        //{
-        //    this.BaseData.Rooms.Values.Where(r => r.Category)
-        //}
+        public IEnumerable<BuildRequirement> GetBuildNewRequirements(Room room)
+        {
+            var roomCount = this.GetRoomCount(room.Id);
 
-        private bool SlotHelper(Func<Slot, SlotData, bool> func, Slot slot)
+            return this.GetBuildRequirements(room, 1, roomCount + 1);
+        }
+
+        public IEnumerable<BuildRequirement> GetBuildUpgradeRequirements(Slot slot, Room room) => this.SlotHelper<BuildRequirement, RoomSlotData>(this.GetBuildUpgradeRequirements, slot, room);
+        public IEnumerable<BuildRequirement> GetBuildUpgradeRequirements(RoomSlotData slotData, Room room) => this.SlotHelper(this.GetBuildUpgradeRequirements, slotData, room);
+        public IEnumerable<BuildRequirement> GetBuildUpgradeRequirements(Slot slot, Room room, RoomSlotData slotData)
+        {
+            var roomCount = this.GetRoomCount(room.Id);
+
+            return this.GetBuildRequirements(room, slotData.Level + 1, roomCount);
+        }
+
+        private IEnumerable<BuildRequirement> GetBuildRequirements(Room room, int level, int roomCount)
+        {
+            var roomPhase = room.Phases[level - 1];
+            if (this.BaseData.RoomUnlockConds.TryGetValue(roomPhase.UnlockCondId, out RoomConditions roomConditions))
+            {
+                var roomCond = roomConditions.Number[roomCount];
+
+                yield return new BuildRequirement(roomCond.Type, roomCond.Level, roomCond.Count);
+            }
+        }
+
+        #region Slot helpers
+        private bool SlotHelper<SD>(Func<Slot, Room, SD, bool> func, Slot slot, Room room) where SD : SlotData
         {
             if (!this.TryGetSlotData(slot, out SlotData slotData))
             {
                 return false;
             }
 
-            return func(slot, slotData);
+            if (!(slotData is SD sd))
+            {
+                return false;
+            }
+
+            return func(slot, room, sd);
+        }
+        private bool SlotHelper<SD>(Func<Slot, Room, SD, bool> func, SD slotData, Room room) where SD : SlotData
+        {
+            if (!this.TryGetSlot(slotData, out Slot slot))
+            {
+                return false;
+            }
+
+            return func(slot, room, slotData);
         }
 
-        private bool SlotHelper(Func<Slot, SlotData, bool> func, SlotData slotData)
+        private bool SlotHelper<SD>(Func<Slot, SD, bool> func, Slot slot) where SD : SlotData
+        {
+            if (!this.TryGetSlotData(slot, out SlotData slotData))
+            {
+                return false;
+            }
+
+            if (!(slotData is SD sd))
+            {
+                return false;
+            }
+
+            return func(slot, sd);
+        }
+        private bool SlotHelper<SD>(Func<Slot, SD, bool> func, SD slotData) where SD : SlotData
         {
             if (!this.TryGetSlot(slotData, out Slot slot))
             {
@@ -256,34 +281,70 @@ namespace Arknights.BaseSimulator.Data
             return func(slot, slotData);
         }
 
-        private T SlotHelper<T>(Func<Slot, SlotData, T> func, Slot slot)
+        private IEnumerable<T> SlotHelper<T, SD>(Func<Slot, Room, SD, IEnumerable<T>> func, Slot slot, Room room) where SD : SlotData
         {
             if (!this.TryGetSlotData(slot, out SlotData slotData))
             {
-                throw new Exception("Could not find given slot.");
+                yield break;
             }
 
-            return func(slot, slotData);
-        }
+            if (!(slotData is SD sd))
+            {
+                yield break;
+            }
 
-        private T SlotHelper<T>(Func<Slot, SlotData, T> func, SlotData slotData)
+            foreach (var t in func(slot, room, sd))
+            {
+                yield return t;
+            }
+        }
+        private IEnumerable<T> SlotHelper<T, SD>(Func<Slot, Room, SD, IEnumerable<T>> func, SD slotData, Room room) where SD : SlotData
         {
             if (!this.TryGetSlot(slotData, out Slot slot))
             {
-                throw new Exception("Could not find given slot.");
+                yield break;
             }
 
-            return func(slot, slotData);
+            foreach (var t in func(slot, room, slotData))
+            {
+                yield return t;
+            }
         }
+
+        private IEnumerable<T> SlotHelper<T>(Func<Slot, SlotData, IEnumerable<T>> func, Slot slot)
+        {
+            if (!this.TryGetSlotData(slot, out SlotData slotData))
+            {
+                yield break;
+            }
+
+            foreach (var t in func(slot, slotData))
+            {
+                yield return t;
+            }
+        }
+        private IEnumerable<T> SlotHelper<T>(Func<Slot, SlotData, IEnumerable<T>> func, SlotData slotData)
+        {
+            if (!this.TryGetSlot(slotData, out Slot slot))
+            {
+                yield break;
+            }
+
+            foreach (var t in func(slot, slotData))
+            {
+                yield return t;
+            }
+        }
+        #endregion
     }
 
     public class BuildRequirement
     {
-        public RoomType RoomType { get; }
+        public RoomTypeCondition RoomType { get; }
         public int Level { get; }
         public int Count { get; }
 
-        public BuildRequirement(RoomType roomType, int level, int count)
+        public BuildRequirement(RoomTypeCondition roomType, int level, int count)
         {
             this.RoomType = roomType;
             this.Level = level;

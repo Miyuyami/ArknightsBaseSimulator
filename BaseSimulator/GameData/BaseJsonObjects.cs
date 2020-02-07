@@ -207,7 +207,7 @@ namespace Arknights.Data
     public class CleanCostType
     {
         [J("id")] public string Id { get; set; }
-        [J("number")] public Dictionary<int, CleanCost> CleanCostByNumber { get; set; }
+        [J("number")] public Dictionary<int, CleanCost> Number { get; set; }
     }
 
     public class CleanCost
@@ -397,12 +397,12 @@ namespace Arknights.Data
     public class RoomConditions
     {
         [J("id")] public string Id { get; set; }
-        [J("number")] public Dictionary<string, RoomCondition> Number { get; set; }
+        [J("number")] public Dictionary<int, RoomCondition> Number { get; set; }
     }
 
     public class RoomCondition
     {
-        [J("type")] public RoomType Type { get; set; }
+        [J("type")] public RoomTypeCondition Type { get; set; }
         [J("level")] public int Level { get; set; }
         [J("count")] public int Count { get; set; }
     }
@@ -504,22 +504,38 @@ namespace Arknights.Data
         [EnumMember(Value = "workshop")] Workshop,
     };
 
+    public enum RoomTypeCondition
+    {
+        [EnumMember(Value = "NONE")] None,
+        [EnumMember(Value = "FUNCTIONAL")] Functional,
+
+        [EnumMember(Value = "CONTROL")] Control,
+        [EnumMember(Value = "POWER")] Power,
+        [EnumMember(Value = "MANUFACTURE")] Manufacture,
+        [EnumMember(Value = "TRADING")] Trading,
+        [EnumMember(Value = "DORMITORY")] Dormitory,
+        [EnumMember(Value = "WORKSHOP")] Workshop,
+        [EnumMember(Value = "HIRE")] Hire,
+        [EnumMember(Value = "TRAINING")] Training,
+        [EnumMember(Value = "MEETING")] Meeting,
+        [EnumMember(Value = "ELEVATOR")] Elevator,
+        [EnumMember(Value = "CORRIDOR")] Corridor,
+    }
+
     [JsonConverter(typeof(StringEnumConverter))]
     public enum RoomType
     {
         [EnumMember(Value = "CONTROL")] Control,
-        [EnumMember(Value = "CORRIDOR")] Corridor,
-        [EnumMember(Value = "DORMITORY")] Dormitory,
-        [EnumMember(Value = "ELEVATOR")] Elevator,
-        [EnumMember(Value = "FUNCTIONAL")] Functional,
-        [EnumMember(Value = "HIRE")] Hire,
-        [EnumMember(Value = "MANUFACTURE")] Manufacture,
-        [EnumMember(Value = "MEETING")] Meeting,
-        [EnumMember(Value = "NONE")] None,
         [EnumMember(Value = "POWER")] Power,
+        [EnumMember(Value = "MANUFACTURE")] Manufacture,
         [EnumMember(Value = "TRADING")] Trading,
-        [EnumMember(Value = "TRAINING")] Training,
+        [EnumMember(Value = "DORMITORY")] Dormitory,
         [EnumMember(Value = "WORKSHOP")] Workshop,
+        [EnumMember(Value = "HIRE")] Hire,
+        [EnumMember(Value = "TRAINING")] Training,
+        [EnumMember(Value = "MEETING")] Meeting,
+        [EnumMember(Value = "ELEVATOR")] Elevator,
+        [EnumMember(Value = "CORRIDOR")] Corridor,
     };
 
     [JsonConverter(typeof(StringEnumConverter))]

@@ -15,23 +15,29 @@
                 f = this.InternalOnClick;
             }
 
-            if (this.CanBuild)
+            if (this.Game.TryGetSlot(this.Data, out Slot slot))
             {
-                <div @onclick="this.InternalOnClickBuild">🧱 (cleanable)</div>
+                if (this.CanBuild)
+                {
+                    <div @onclick="this.InternalOnClickBuild">@slot.Category (upgradeable)</div>
+                }
+                else
+                {
+                    <div @onclick="this.InternalOnClick">@slot.Category</div>
+                }
             }
             else
             {
-                <div @onclick="this.InternalOnClick">🧱</div>
+                <div>SLOT NOT FOUND</div>
             }
         }
     </div>
 }
 
 @code {
-    [Parameter]
-    public EmptySlotData Data { get; set; }
+    [CascadingParameter] public EmptySlotData Data { get; set; }
 
-    private bool CanBuild => this.Game.CanUnlock(this.Data);
+    private bool CanBuild => this.Game.CanBuild(this.Data, null); // TODO
 
     private Slot GetSlot()
     {

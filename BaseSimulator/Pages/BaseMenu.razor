@@ -13,8 +13,7 @@
 @code {
     private ElementReference BuildModeCheckbox;
 
-    [Parameter]
-    public EventCallback<bool> OnBuildModeChanged { get; set; }
+    [Parameter] public EventCallback<bool> OnBuildModeChanged { get; set; }
 
     private async Task OnClickBuildMode()
     {
