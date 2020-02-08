@@ -225,6 +225,8 @@ namespace Arknights.BaseSimulator.Data
             return false;
         }
 
+        public bool TryBuild(Slot slot, Room room) => this.SlotHelper<EmptySlotData>(this.TryBuild, slot, room);
+        public bool TryBuild(EmptySlotData slotData, Room room) => this.SlotHelper(this.TryBuild, slotData, room);
         private bool TryBuild(Slot slot, Room room, EmptySlotData slotData)
         {
             if (!this.CanBuild(slot, room, slotData))
@@ -232,8 +234,8 @@ namespace Arknights.BaseSimulator.Data
                 return false;
             }
 
-            // TODO:
-            throw new NotImplementedException();
+            this.SaveData.Slots[slotData.Id] = new RoomSlotData(slot.Id, room.Id, 1);
+            return true;
         }
 
         public bool CanBuildAny(Slot slot) => this.SlotHelper<EmptySlotData>(this.CanBuildAny, slot);
