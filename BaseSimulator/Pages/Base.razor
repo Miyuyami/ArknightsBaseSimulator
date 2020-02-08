@@ -4,6 +4,7 @@
 
 @inject GameService GameService
 @inject ILocalStorageService LocalStorage
+@inject IModalService ModalService
 
 <link rel="stylesheet" href="/css/base.css" />
 
@@ -16,7 +17,7 @@
 else
 {
     <div class="mt-5 position-relative">
-        <div class="base-menu position-fixed">
+        <div class="fixed">
             <BaseMenu @ref="@this.BaseMenu" OnBuildModeChanged="@this.OnBuildModeChanged" />
         </div>
         <div class="base">
@@ -71,6 +72,21 @@ else
     {
         var saveData = this.GameService.Serialize(this.Game);
         await this.LocalStorage.SetItemAsync(SaveQueryKey, saveData);
+    }
+
+    private void OnModalClose(ModalResult result)
+    {
+        if (result.Cancelled)
+        {
+            return;
+        }
+
+        this.StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        this.ModalService.OnClose += this.OnModalClose;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

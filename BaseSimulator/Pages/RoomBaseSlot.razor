@@ -1,16 +1,25 @@
 ﻿@inherits AbstractClickableBaseSlot
 
 @{
-    <div class="row btn btn-light w-100 h-100">
-        <div class="col-8">
-            @this.Data.RoomType
+    <div class="row m-0 btn btn-info w-100 h-100 d-flex align-items-center justify-content-center">
+        <div class="col-8 p-0">
+            @this.GetRoomTypeAsString()
         </div>
-        <div class="col-4">
+        <div class="col-4 p-0">
             @this.Data.Level
         </div>
     </div>
 }
 
 @code {
-    [Parameter] public RoomSlotData Data { get; set; }
+    [CascadingParameter] public RoomSlotData Data { get; set; }
+
+    private string GetRoomTypeAsString() => this.ToString(this.Data.RoomType);
+
+    private string ToString(RoomType roomType) =>
+        roomType switch
+        {
+            RoomType.Elevator => RoomType.Elevator.ToString().First().ToString(),
+            _ => roomType.ToString(),
+        };
 }

@@ -1,0 +1,89 @@
+﻿@inject IModalService ModalService
+
+<div class="container-fluid d-flex flex-column" style="width: 80em; height: 20em;">
+    <CascadingValue Value="@this.Game">
+        @{
+            var possibleRooms = this.Game.GetPossibleBuildRooms(this.Data)
+                                         .ToList();
+
+            <div class="row h-100 m-3">
+                <div class="col">
+                    <div id="BuildRoomCarousel" class="carousel slide" data-interval="false">
+                        <ol class="carousel-indicators">
+                            <li data-target="#BuildRoomCarousel" data-slide-to="0" class="active"></li>
+                            @for (int i = 1; i < possibleRooms.Count; i++)
+                            {
+                                <li data-target="#BuildRoomCarousel" data-slide-to="@i"></li>
+                            }
+                        </ol>
+                        <div class="carousel-inner">
+                            @foreach (var r in possibleRooms)
+                            {
+                                <div class="carousel-item">
+                                    <div class="d-block w-100">
+                                        <CascadingValue Value="@r">
+                                            <div class="border-light">
+                                                <BuildNewRoom />
+                                            </div>
+
+                                            @if (!this.Game.DoesMeetBuildNewRequirements(r))
+                                            {
+                                                <div class="popover">
+                                                    <BuildNewRequirements />
+                                                </div>
+                                            }
+                                        </CascadingValue>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <a class="carousel-control-prev" href="#BuildRoomCarousel" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#BuildRoomCarousel" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col btn btn-dark m-1" @onclick="Cancel">
+                    ❌ Cancel
+                </div>
+                <div class="col btn btn-dark m-1" @onclick="Confirm">
+                    ✔ Confirm
+                </div>
+            </div>
+        }
+    </CascadingValue>
+</div>
+
+@code {
+    [CascadingParameter] private ModalParameters Parameters { get; set; }
+
+    public Game Game { get; set; }
+    public EmptySlotData Data { get; set; }
+
+    protected override void OnInitialized()
+    {
+        this.Game = this.Parameters.Get<Game>("Game");
+        this.Data = this.Parameters.Get<EmptySlotData>("Data");
+    }
+
+    private void Confirm()
+    {
+        //if (!this.Game.TryBuild(this.Data))
+        //{
+        //    throw new Exception("failed to unlock slot");
+        //}
+
+        this.ModalService.Close(ModalResult.Ok<bool>(true));
+    }
+
+    private void Cancel()
+    {
+        this.ModalService.Cancel();
+    }
+}

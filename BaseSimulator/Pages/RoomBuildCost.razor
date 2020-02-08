@@ -1,110 +1,63 @@
 ﻿@{
     int colspan;
-    switch (this.Room.Id)
+    if (this.IsDowngrading)
     {
-        case RoomType.Corridor:
-        case RoomType.Elevator:
-            var cleanCosts = this.Game.GetCleanCosts(this.Slot).ToList();
-            var cleanCostsCount = cleanCosts.Where(c => c.Count > 0).Count();
-            colspan = Math.Max(cleanCostsCount, 1);
 
-            <div class="row">
-                <div class="col">
-                    Consume the following materials to clean the room?
-                </div>
+    }
+    else
+    {
+        var buildCost = this.Game.GetRoomUpgradeCosts(this.Slot);
+        var upgradeCosts = buildCost.Items;
+        var itemCosts = buildCost.Items;
+        var itemsCount = itemCosts.Where(c => c.Count > 0).Count();
+        var timeCost = buildCost.Time;
+        var timeCount = 0; // timeCost > 0 ? 1 : 0;
+        var laborCost = buildCost.Labor;
+        var laborCount = 1; // laborCost > 0 ? 1 : 0;
+        var totalCount = itemsCount + timeCount + laborCount;
+        colspan = Math.Max(totalCount, 1);
+
+        <div class="row">
+            <div class="col">
+                Consume the following materials to upgrade the facility?
             </div>
-            <div class="row">
-                <div class="col">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col" colspan="@colspan">Materials Needed</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                @{
-                                    if (cleanCostsCount == 0)
-                                    {
-                                        <td>No cost. Cleaning is free.</td>
-                                    }
-                                    else
-                                    {
-                                        foreach (var cleanCost in cleanCosts)
-                                        {
-                                            var itemCount = this.Game.GetItemCount(cleanCost.ItemId);
-                                            var itemName = this.Game.GetItemName(cleanCost.ItemId);
+        </div>
+        <div class="row">
+            <div class="col">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col" colspan="@colspan">Materials Needed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            @{
+                                if (totalCount == 0)
+                                {
+                                    <td>No cost. Upgrade is free.</td>
+                                }
+                                else
+                                {
+                                    var itemCount = this.Game.GetLaborCount();
+                                    var itemName = this.Game.GetLaborName();
 
-                                            <RoomBuildCostEntry Name="@itemName" AvailableCount="@itemCount" NeededCount="cleanCost.Count" />
-                                        }
+                                    <RoomBuildCostEntry Name="@itemName" AvailableCount="@itemCount" NeededCount="laborCount" />
+
+                                    foreach (var cleanCost in itemCosts)
+                                    {
+                                        itemCount = this.Game.GetItemCount(cleanCost.ItemId);
+                                        itemName = this.Game.GetItemName(cleanCost.ItemId);
+
+                                        <RoomBuildCostEntry Name="@itemName" AvailableCount="@itemCount" NeededCount="cleanCost.Count" />
                                     }
                                 }
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                            }
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            break;
-        default:
-            if (this.IsDowngrading)
-            {
-
-            }
-            else
-            {
-                var upgradeCosts = this.Game.GetRoomUpgradeCosts(this.Room);
-                var itemCosts = upgradeCosts.Items;
-                var itemsCount = itemCosts.Where(c => c.Count > 0).Count();
-                var timeCost = upgradeCosts.Time;
-                var timeCount = 0; // timeCost > 0 ? 1 : 0;
-                var laborCost = upgradeCosts.Labor;
-                var laborCount = 1; // laborCost > 0 ? 1 : 0;
-                var totalCount = itemsCount + timeCount + laborCount;
-                colspan = Math.Max(totalCount, 1);
-
-                <div class="row">
-                    <div class="col">
-                        Consume the following materials to upgrade the facility?
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col" colspan="@colspan">Materials Needed</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    @{
-                                        if (totalCount == 0)
-                                        {
-                                            <td>No cost. Upgrade is free.</td>
-                                        }
-                                        else
-                                        {
-                                            var itemCount = this.Game.GetLaborCount();
-                                            var itemName = this.Game.GetLaborName();
-
-                                            <RoomBuildCostEntry Name="@itemName" AvailableCount="@itemCount" NeededCount="laborCount" />
-
-                                            foreach (var cleanCost in itemCosts)
-                                            {
-                                                itemCount = this.Game.GetItemCount(cleanCost.ItemId);
-                                                itemName = this.Game.GetItemName(cleanCost.ItemId);
-
-                                                <RoomBuildCostEntry Name="@itemName" AvailableCount="@itemCount" NeededCount="cleanCost.Count" />
-                                            }
-                                        }
-                                    }
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            }
-            break;
+        </div>
     }
 }
 

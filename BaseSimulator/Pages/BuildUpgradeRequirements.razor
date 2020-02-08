@@ -1,5 +1,5 @@
 ﻿<div class="row">
-    <div class="col">@this.Title</div>
+    <div class="col">Requirements not met. Unable to upgrade.</div>
 </div>
 <div class="row">
     <div class="col">
@@ -13,7 +13,7 @@
             </thead>
             <tbody>
                 @{
-                    foreach (var req in this.Game.GetUnlockRequirements(this.Slot))
+                    foreach (var req in this.Game.GetBuildUpgradeRequirements(this.Slot, this.Room))
                     {
                         <tr>
                             <td>@req.RoomType</td>
@@ -30,5 +30,5 @@
 @code {
     [CascadingParameter] public Game Game { get; set; }
     [CascadingParameter] public Slot Slot { get; set; }
-    [Parameter] public string Title { get; set; }
+    [CascadingParameter] public Room Room { get; set; }
 }

@@ -1,0 +1,16 @@
+﻿<table class="table">
+    <tbody>
+        <tr>
+            <th scope="row">Recruit Efficiency</th>
+            <td>@this.Game.BaseData.HireData.Phases[this.Game.LevelToPhase(this.Level)].EconomizeRate.ToString("P0")</td>
+            <th scope="row">Power Consumed</th>
+            <td>@(-this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity)</td>
+        </tr>
+    </tbody>
+</table>
+
+@code {
+    [CascadingParameter] public Game Game { get; set; }
+    [CascadingParameter] public Room Room { get; set; }
+    [Parameter] public int Level { get; set; }
+}

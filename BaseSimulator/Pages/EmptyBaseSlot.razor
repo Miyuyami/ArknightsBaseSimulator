@@ -5,21 +5,18 @@
 @{
     <div class="btn btn-dark h-100 w-100 d-flex align-items-center justify-content-center">
         @{
-            Func<MouseEventArgs, Task> f;
-            if (this.IsInBuildMode)
-            {
-                f = this.InternalOnClickBuild;
-            }
-            else
-            {
-                f = this.InternalOnClick;
-            }
-
             if (this.Game.TryGetSlot(this.Data, out Slot slot))
             {
-                if (this.CanBuild)
+                if (this.IsInBuildMode)
                 {
-                    <div @onclick="this.InternalOnClickBuild">@slot.Category (upgradeable)</div>
+                    if (this.CanBuild)
+                    {
+                        <div @onclick="this.InternalOnClickBuild">@slot.Category (buildable)</div>
+                    }
+                    else
+                    {
+                        <div @onclick="this.InternalOnClickBuild">@slot.Category</div>
+                    }
                 }
                 else
                 {
@@ -37,7 +34,7 @@
 @code {
     [CascadingParameter] public EmptySlotData Data { get; set; }
 
-    private bool CanBuild => this.Game.CanBuild(this.Data, null); // TODO
+    private bool CanBuild => this.Game.CanBuildAny(this.Data);
 
     private Slot GetSlot()
     {
@@ -47,14 +44,14 @@
 
     private async Task InternalOnClickBuild(MouseEventArgs e)
     {
-        //var parameters = new ModalParameters();
-        //parameters.Add("Game", this.Game);
-        //parameters.Add("Data", this.Data);
-        //var options = new ModalOptions()
-        //{
-        //    Position = "blazored-modal-center",
-        //};
-        //this.ModalService.Show<AddRoomBaseSlotModal>("", parameters, options);
+        var parameters = new ModalParameters();
+        parameters.Add("Game", this.Game);
+        parameters.Add("Data", this.Data);
+        var options = new ModalOptions()
+        {
+            Position = "blazored-modal-center",
+        };
+        this.ModalService.Show<BuildBaseSlotModal>("", parameters, options);
 
         await this.OnClick.InvokeAsync(this.Data);
     }

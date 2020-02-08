@@ -379,7 +379,7 @@ namespace Arknights.Data
 
     public class RequireRoom
     {
-        [J("roomId")] public RoomType RoomId { get; set; }
+        [J("roomId")] public RoomTypeCondition RoomType { get; set; }
         [J("roomLevel")] public int RoomLevel { get; set; }
         [J("roomCount")] public int RoomCount { get; set; }
     }

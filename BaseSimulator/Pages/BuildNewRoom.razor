@@ -1,0 +1,68 @@
+﻿@{
+    var buildCost = this.Game.GetNewRoomBuildCost(this.Room);
+
+    <CascadingValue Value="@buildCost.Items">
+        <div>
+            <div class="row">
+                <div class="col-4">
+
+                </div>
+                <div class="col-8">
+                    <RoomCostsTable />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-5 align-text-bottom">
+                    @($"{this.Room.Name} {this.Game.GetRoomCount(this.Room.Id)}/{this.Room.MaxCount}")
+                </div>
+                <div class="col-7">
+                    @switch (this.Room.Id)
+                    {
+                        case RoomType.Control:
+                            <ControlRoomMiniInfo Level="1" />
+                            break;
+                        case RoomType.Power:
+                            <PowerRoomMiniInfo Level="1" />
+                            break;
+                        case RoomType.Manufacture:
+                            <ManufactureRoomMiniInfo Level="1" />
+                            break;
+                        case RoomType.Trading:
+                            <TradingRoomMiniInfo Level="1" />
+                            break;
+                        case RoomType.Dormitory:
+                            <DormitoryRoomMiniInfo Level="1" />
+                            break;
+                        case RoomType.Workshop:
+                            <WorkshopRoomMiniInfo Level="1" />
+                            break;
+                        case RoomType.Hire:
+                            <HireRoomMiniInfo Level="1" />
+                            break;
+                        case RoomType.Training:
+                            <TrainingRoomMiniInfo Level="1" />
+                            break;
+                        case RoomType.Meeting:
+                            <MeetingRoomMiniInfo Level="1" />
+                            break;
+                        @*case RoomType.Elevator:
+                            <ElevatorRoomMiniInfo Level="1" />
+                            break;
+                        case RoomType.Corridor:
+                            <CorridorRoomMiniInfo Level="1" />
+                            break;*@
+                        default:
+                            <div>INVALID ROOM</div>
+                            break;
+                    }
+                </div>
+            </div>
+        </div>
+    </CascadingValue>
+}
+
+@code {
+    [CascadingParameter] public Game Game { get; set; }
+    [CascadingParameter] public Room Room { get; set; }
+
+}

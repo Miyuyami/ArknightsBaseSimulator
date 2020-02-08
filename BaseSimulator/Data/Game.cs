@@ -17,6 +17,8 @@ namespace Arknights.BaseSimulator.Data
 
         private Slot ControlSlot => this.BaseLayout.Slots[this.BaseData.ControlSlotId];
         private SlotData ControlSlotData => this.SaveData.Slots[this.BaseData.ControlSlotId];
+        private Slot MeetingSlot => this.BaseLayout.Slots[this.BaseData.MeetingSlotId];
+        private SlotData MeetingSlotData => this.SaveData.Slots[this.BaseData.MeetingSlotId];
 
         public Game(SaveData saveData, BaseData baseData)
         {
@@ -32,9 +34,16 @@ namespace Arknights.BaseSimulator.Data
             this.MaxLayoutHeight = this.BaseLayout.Slots.Values.Max(s => s.Offset.Row + s.Size.Row);
         }
 
+        public int LevelToPhase(int level) => level - 1;
+        public string ManpowerToString(int manpower) => ((double)manpower / 100).ToString("n2");
+        public string ManpowerCharacterToString(int manpower) => ((double)manpower / this.BaseData.ManpowerDisplayFactor).ToString("n0");
+
         private Slot GetSlot(SlotData slotData) => this.BaseLayout.Slots[slotData.Id];
         private Slot GetSlot(string id) => this.BaseLayout.Slots[id];
         public bool TryGetSlot(SlotData slotData, out Slot slot) => this.BaseLayout.Slots.TryGetValue(slotData.Id, out slot);
+
+        private Room GetRoom(RoomType roomType) => this.BaseData.Rooms[roomType];
+        public bool TryGetRoom(RoomType roomType, out Room room) => this.BaseData.Rooms.TryGetValue(roomType, out room);
 
         public IEnumerable<RoomSlotData> GetRoomSlots() => this.SaveData.Slots.OfType<RoomSlotData>();
         public IEnumerable<RoomSlotData> GetRoomSlots(RoomType roomType) => this.GetRoomSlots().Where(r => r.RoomType == roomType);
@@ -43,6 +52,24 @@ namespace Arknights.BaseSimulator.Data
         private bool TryGetSlotData(string key, out SlotData slotData) => this.SaveData.Slots.TryGetValue(key, out slotData);
         private bool TryGetSlotData(Slot slot, out SlotData slotData) => this.SaveData.Slots.TryGetValue(slot.Id, out slotData);
         private void SetSlotData(Slot slot, SlotData slotData) => this.SaveData.Slots[slot.Id] = slotData;
+
+        public bool TryGetRoomData(Slot slot, out RoomSlotData roomSlotData)
+        {
+            if (!this.TryGetSlotData(slot, out SlotData slotData))
+            {
+                roomSlotData = null;
+                return false;
+            }
+
+            if (!(slotData is RoomSlotData roomSlotDataValue))
+            {
+                roomSlotData = null;
+                return false;
+            }
+
+            roomSlotData = roomSlotDataValue;
+            return true;
+        }
 
         public int GetRoomCount(RoomType roomType) =>
             this.SaveData.Slots.OfType<RoomSlotData>()
@@ -70,6 +97,7 @@ namespace Arknights.BaseSimulator.Data
                 _ => throw new KeyNotFoundException(),
             };
 
+        // TODO: return BuildCost
         public IEnumerable<Cost> GetCleanCosts(Slot slot)
         {
             var room = this.GetPossibleBuildRooms(slot)
@@ -80,20 +108,42 @@ namespace Arknights.BaseSimulator.Data
                                   .Items;
         }
 
-        public BuildCost GetRoomUpgradeCosts(Room room) =>
-            this.GetRoomPhaseCost(room, 1 + this.GetRoomCount(room.Id));
+        public BuildCost GetNewRoomBuildCost(Room room) => this.GetRoomBuildCost(room, 1);
 
-        public IEnumerable<Cost> GetRoomDowngradeRefund(Room room) =>
-            this.GetRoomPhaseCost(room, this.GetRoomCount(room.Id)).Items;
-
-        private BuildCost GetRoomPhaseCost(Room room, int phase)
+        public BuildCost GetRoomUpgradeCosts(Slot slot)
         {
-            if (room.Phases.Count < phase)
+            if (!this.TryGetRoomData(slot, out RoomSlotData roomSlotData))
             {
-                throw new ArgumentException("Given phase doesn't exist.", nameof(phase));
+                throw new Exception("slot not found");
             }
 
-            return room.Phases[phase].BuildCost;
+            var room = this.GetRoom(roomSlotData.RoomType);
+
+            return this.GetRoomBuildCost(room, roomSlotData.Level + 1);
+        }
+
+        public BuildCost GetRoomDowngradeRefundCost(Slot slot)
+        {
+            if (!this.TryGetRoomData(slot, out RoomSlotData roomSlotData))
+            {
+                throw new Exception("slot not found");
+            }
+
+            var room = this.GetRoom(roomSlotData.RoomType);
+
+            return this.GetRoomBuildCost(room, roomSlotData.Level);
+        }
+
+        private BuildCost GetRoomBuildCost(Room room, int level)
+        {
+            var phaseIdx = this.LevelToPhase(level);
+            if (phaseIdx >= room.Phases.Count)
+            {
+                return null;
+                throw new ArgumentException("Given level doesn't exist.", nameof(level));
+            }
+
+            return room.Phases[phaseIdx].BuildCost;
         }
 
         public string GetLaborName() =>
@@ -108,14 +158,17 @@ namespace Arknights.BaseSimulator.Data
         public bool IsUnlocked(SlotData slotData) =>
             !(slotData is LockedSlotData);
 
-        public IEnumerable<Room> GetPossibleBuildRooms(Slot slot) => this.BaseData.Rooms.Values.Where(r =>
-            slot.Category switch
-            {
-                RoomCategory.Elevator => r.Id == RoomType.Elevator,
-                RoomCategory.Corridor => r.Id == RoomType.Corridor,
-                RoomCategory.Special => r.Id == RoomType.Control,
-                _ => r.Category == slot.Category,
-            });
+        public IEnumerable<Room> GetPossibleBuildRooms(Slot slot) => this.SlotHelper(this.GetPossibleBuildRooms, slot);
+        public IEnumerable<Room> GetPossibleBuildRooms(SlotData slotData) => this.SlotHelper(this.GetPossibleBuildRooms, slotData);
+        public IEnumerable<Room> GetPossibleBuildRooms(Slot slot, SlotData slotData) =>
+            this.BaseData.Rooms.Values.Where(r =>
+                slot.Category switch
+                {
+                    RoomCategory.Elevator => r.Id == RoomType.Elevator,
+                    RoomCategory.Corridor => r.Id == RoomType.Corridor,
+                    RoomCategory.Special => r.Id == RoomType.Control,
+                    _ => r.Category == slot.Category,
+                });
 
         public bool TryUnlock(Slot slot) => this.SlotHelper<LockedSlotData>(this.TryUnlock, slot);
         public bool TryUnlock(LockedSlotData slotData) => this.SlotHelper(this.TryUnlock, slotData);
@@ -126,7 +179,14 @@ namespace Arknights.BaseSimulator.Data
                 return false;
             }
 
-            this.SaveData.Slots[slot.Id] = new EmptySlotData(slot.Id);
+            var emptySlotData = new EmptySlotData(slot.Id);
+            this.SaveData.Slots[slot.Id] = emptySlotData;
+
+            if (this.TryInstantBuild(slot, emptySlotData, out RoomSlotData roomSlotData))
+            {
+                this.SaveData.Slots[slot.Id] = roomSlotData;
+            }
+
             return true;
         }
 
@@ -141,16 +201,69 @@ namespace Arknights.BaseSimulator.Data
             };
         }
 
-        public bool CanBuild(Slot slot, Room room) => this.SlotHelper<EmptySlotData>(this.CanBuild, slot, room);
-        public bool CanBuild(EmptySlotData slotData, Room room) => this.SlotHelper(this.CanBuild, slotData, room);
-        private bool CanBuild(Slot slot, Room room, EmptySlotData slotData)
+        private bool TryInstantBuild(Slot slot, EmptySlotData emptySlotData, out RoomSlotData roomSlotData)
         {
-            if (this.GetRoomSlots(room.Id).Count() >= room.MaxCount)
+            switch (slot.Category)
+            {
+                case RoomCategory.Elevator:
+                    if (this.CanBuild(slot, this.GetRoom(RoomType.Elevator), emptySlotData))
+                    {
+                        roomSlotData = new RoomSlotData(slot.Id, RoomType.Elevator, 1);
+                        return true;
+                    }
+                    break;
+                case RoomCategory.Corridor:
+                    if (this.CanBuild(slot, this.GetRoom(RoomType.Elevator), emptySlotData))
+                    {
+                        roomSlotData = new RoomSlotData(slot.Id, RoomType.Corridor, 1);
+                        return true;
+                    }
+                    break;
+            }
+
+            roomSlotData = null;
+            return false;
+        }
+
+        private bool TryBuild(Slot slot, Room room, EmptySlotData slotData)
+        {
+            if (!this.CanBuild(slot, room, slotData))
             {
                 return false;
             }
 
-            return this.DoesMeetBuildRequirements(room);
+            // TODO:
+            throw new NotImplementedException();
+        }
+
+        public bool CanBuildAny(Slot slot) => this.SlotHelper<EmptySlotData>(this.CanBuildAny, slot);
+        public bool CanBuildAny(EmptySlotData slotData) => this.SlotHelper(this.CanBuildAny, slotData);
+        public bool CanBuildAny(Slot slot, EmptySlotData slotData) =>
+            this.GetPossibleBuildRooms(slot)
+                .Any(r => this.CanBuild(slot, r, slotData));
+
+        public bool CanBuild(Slot slot, Room room) => this.SlotHelper<EmptySlotData>(this.CanBuild, slot, room);
+        public bool CanBuild(EmptySlotData slotData, Room room) => this.SlotHelper(this.CanBuild, slotData, room);
+        private bool CanBuild(Slot slot, Room room, EmptySlotData slotData)
+        {
+            if (room.MaxCount != -1 &&
+                this.GetRoomSlots(room.Id).Count() >= room.MaxCount)
+            {
+                return false;
+            }
+
+            return this.DoesMeetBuildNewRequirements(room);
+        }
+
+        private bool TryUpgrade(Slot slot, Room room, RoomSlotData slotData)
+        {
+            if (!this.CanUpgrade(slot, room, slotData))
+            {
+                return false;
+            }
+
+            // TODO:
+            throw new NotImplementedException();
         }
 
         public bool CanUpgrade(Slot slot, Room room) => this.SlotHelper<RoomSlotData>(this.CanUpgrade, slot, room);
@@ -171,6 +284,7 @@ namespace Arknights.BaseSimulator.Data
             this.GetUnlockRequirements(slot, slotData)
                 .All(this.IsRequirementMet);
 
+        private bool IsRequirementMet(RequireRoom rr) => this.IsRequirementMet(new BuildRequirement(rr.RoomType, rr.RoomLevel, rr.RoomCount));
         private bool IsRequirementMet(BuildRequirement br) =>
             br.RoomType switch
             {
@@ -179,7 +293,7 @@ namespace Arknights.BaseSimulator.Data
                 _ => this.GetRoomSlots(br.RoomType.ToRoomType()).Where(r => r.Level >= br.Level).Count() >= br.Count,
             };
 
-        public bool DoesMeetBuildRequirements(Room room) =>
+        public bool DoesMeetBuildNewRequirements(Room room) =>
             this.GetBuildNewRequirements(room)
                 .All(this.IsRequirementMet);
 
@@ -223,7 +337,7 @@ namespace Arknights.BaseSimulator.Data
 
         private IEnumerable<BuildRequirement> GetBuildRequirements(Room room, int level, int roomCount)
         {
-            var roomPhase = room.Phases[level - 1];
+            var roomPhase = room.Phases[this.LevelToPhase(level)];
             if (this.BaseData.RoomUnlockConds.TryGetValue(roomPhase.UnlockCondId, out RoomConditions roomConditions))
             {
                 var roomCond = roomConditions.Number[roomCount];
@@ -231,6 +345,15 @@ namespace Arknights.BaseSimulator.Data
                 yield return new BuildRequirement(roomCond.Type, roomCond.Level, roomCond.Count);
             }
         }
+
+        public IEnumerable<WorkshopFormula> GetWorkshopFormulas(int level, int roomCount) =>
+            this.BaseData.WorkshopFormulas.Values.Where(w =>
+                w.RequireRooms.All(r => r.RoomType == RoomTypeCondition.Workshop &&
+                                        r.RoomLevel == level &&
+                                        r.RoomCount <= roomCount));
+        public IEnumerable<WorkshopFormula> GetUnlockedWorkshopFormulas() =>
+            this.BaseData.WorkshopFormulas.Values.Where(w => w.RequireRooms.All(this.IsRequirementMet));
+
 
         #region Slot helpers
         private bool SlotHelper<SD>(Func<Slot, Room, SD, bool> func, Slot slot, Room room) where SD : SlotData

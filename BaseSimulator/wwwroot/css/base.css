@@ -1,12 +1,4 @@
-﻿.base {
-    z-index: 0;
-}
-
-.base-menu {
-    z-index: 1;
-}
-
-.slot {
+﻿.slot {
     --one-unit: 50px;
 }
 

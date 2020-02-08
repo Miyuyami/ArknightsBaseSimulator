@@ -40,7 +40,7 @@
                     {
                         <div class="row h-100">
                             <div class="col">
-                                <RoomRequirements Title="No signal detected on this floor. Unable to clean." />
+                                <UnlockRequirements />
                             </div>
                         </div>
                         <div class="row">
@@ -78,7 +78,7 @@
             throw new Exception("failed to unlock slot");
         }
 
-        this.ModalService.Close(ModalResult.Ok<object>(null));
+        this.ModalService.Close(ModalResult.Ok<bool>(true));
     }
 
     private void Cancel()
