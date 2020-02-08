@@ -65,3 +65,12 @@
     .slot.height8 {
         height: calc(var(--one-unit) * 8);
     }
+
+.carousel-control-next,
+.carousel-control-prev {
+    filter: invert(100%);
+}
+
+.carousel-indicators {
+    filter: invert(100%);
+}

@@ -1,14 +1,17 @@
 ﻿<table class="table">
     <tbody>
-        <tr>
-            @{
-                var power = this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity;
+        @{
+            var power = this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity;
+
+            <tr>
                 <th scope="row">Power</th>
                 <td>@power</td>
+            </tr>
+            <tr>
                 <th scope="row">Power Consumed</th>
                 <td>0</td>
-            }
-        </tr>
+            </tr>
+        }
     </tbody>
 </table>
 

@@ -3,6 +3,8 @@
         <tr>
             <th scope="row">Order Limit</th>
             <td>@this.Game.BaseData.TradingData.Phases[this.Game.LevelToPhase(this.Level)].OrderLimit</td>
+        </tr>
+        <tr>
             <th scope="row">Power Consumed</th>
             <td>@(-this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity)</td>
         </tr>

@@ -3,6 +3,8 @@
         <tr>
             <th scope="row">Level Limit</th>
             <td>@this.Game.BaseData.TrainingData.Phases[this.Game.LevelToPhase(this.Level)].SpecSkillLvlLimit</td>
+        </tr>
+        <tr>
             <th scope="row">Power Consumed</th>
             <td>@(-this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity)</td>
         </tr>

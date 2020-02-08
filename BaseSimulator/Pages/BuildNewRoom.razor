@@ -8,11 +8,11 @@
 
                 </div>
                 <div class="col-8">
-                    <RoomCostsTable />
+                    <RoomCostsTable EmptyText="No cost. Building is free." />
                 </div>
             </div>
             <div class="row">
-                <div class="col-5 align-text-bottom">
+                <div class="col-5 d-flex align-items-end pb-4">
                     @($"{this.Room.Name} {this.Game.GetRoomCount(this.Room.Id)}/{this.Room.MaxCount}")
                 </div>
                 <div class="col-7">
@@ -46,11 +46,11 @@
                             <MeetingRoomMiniInfo Level="1" />
                             break;
                         @*case RoomType.Elevator:
-                            <ElevatorRoomMiniInfo Level="1" />
-                            break;
-                        case RoomType.Corridor:
-                            <CorridorRoomMiniInfo Level="1" />
-                            break;*@
+                                <ElevatorRoomMiniInfo Level="1" />
+                                break;
+                            case RoomType.Corridor:
+                                <CorridorRoomMiniInfo Level="1" />
+                                break;*@
                         default:
                             <div>INVALID ROOM</div>
                             break;

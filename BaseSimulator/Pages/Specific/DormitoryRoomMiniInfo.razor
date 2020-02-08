@@ -3,6 +3,8 @@
         <tr>
             <th scope="row">Morale Restored/hr</th>
             <td>@this.Game.ManpowerToString(this.Game.BaseData.DormData.Phases[this.Game.LevelToPhase(this.Level)].ManpowerRecover)</td>
+        </tr>
+        <tr>
             <th scope="row">Power Consumed</th>
             <td>@(-this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity)</td>
         </tr>

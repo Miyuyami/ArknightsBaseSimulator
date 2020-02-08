@@ -3,6 +3,8 @@
         <tr>
             <th scope="row">New Formulas</th>
             <td>@this.Game.GetWorkshopFormulas(this.Level, 1)</td>
+        </tr>
+        <tr>
             <th scope="row">Power Consumed</th>
             <td>@(-this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity)</td>
         </tr>

@@ -3,6 +3,8 @@
         <tr>
             <th scope="row">Capacity</th>
             <td>@this.Game.BaseData.ManufactData.Phases[this.Game.LevelToPhase(this.Level)].OutputCapacity</td>
+        </tr>
+        <tr>
             <th scope="row">Power Consumed</th>
             <td>@(-this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity)</td>
         </tr>

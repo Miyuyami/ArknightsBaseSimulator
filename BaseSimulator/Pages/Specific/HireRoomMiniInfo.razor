@@ -3,6 +3,8 @@
         <tr>
             <th scope="row">Recruit Efficiency</th>
             <td>@this.Game.BaseData.HireData.Phases[this.Game.LevelToPhase(this.Level)].EconomizeRate.ToString("P0")</td>
+        </tr>
+        <tr>
             <th scope="row">Power Consumed</th>
             <td>@(-this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity)</td>
         </tr>
