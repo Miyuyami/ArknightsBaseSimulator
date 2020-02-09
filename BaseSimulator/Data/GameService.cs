@@ -1,16 +1,25 @@
 ﻿using System;
-using System.Text;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Arknights.Data;
 
 namespace Arknights.BaseSimulator.Data
 {
     public class GameService
     {
-        public BaseData BaseData { get; }
+        public BaseData BaseData { get; private set; }
+        private HttpClient HttpClient { get; }
 
-        public GameService(BaseData baseData)
+        public GameService(HttpClient httpClient)
         {
-            this.BaseData = baseData;
+            this.HttpClient = httpClient;
+        }
+
+        public async Task InitAsync(string url)
+        {
+            string jsonString = await this.HttpClient.GetStringAsync(url);
+
+            this.BaseData = BaseData.FromJson(jsonString);
         }
 
         public Game CreateGame(string value = null)

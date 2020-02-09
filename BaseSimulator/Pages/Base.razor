@@ -4,8 +4,6 @@
 @inject ILocalStorageService LocalStorage
 @inject IModalService ModalService
 
-<link rel="stylesheet" href="/css/base.css" />
-
 @if (this.Game == null)
 {
     <div class="row h-100">
@@ -15,7 +13,7 @@
 else
 {
     <div class="mt-5 position-relative">
-        <div class="fixed">
+        <div class="base-menu fixed">
             <BaseMenu @ref="@this.BaseMenu" OnBuildModeChanged="@this.OnBuildModeChanged" />
         </div>
         <div class="base">

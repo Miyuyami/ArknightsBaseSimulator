@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "BlazorApp2": {
+    "BaseSimulator": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

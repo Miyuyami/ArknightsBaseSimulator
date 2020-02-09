@@ -1,7 +1,5 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Arknights.BaseSimulator.Data;
-using Arknights.Data;
 using Blazored.LocalStorage;
 using Blazored.Modal;
 using Microsoft.AspNetCore.Blazor.Hosting;
@@ -14,21 +12,19 @@ namespace Arknights.BaseSimulator
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.RootComponents.Add<App>("app");
 
             builder.Services.AddBlazoredModal();
             builder.Services.AddBlazoredLocalStorage();
 
-            builder.Services.AddSingleton(async sp =>
-            {
-                var httpClient = sp.GetRequiredService<HttpClient>();
-                string jsonString = await httpClient.GetStringAsync("data/building_data.json");
-
-                return BaseData.FromJson(jsonString);
-            });
             builder.Services.AddSingleton<GameService>();
 
-            await builder.Build().RunAsync();
+            builder.RootComponents.Add<App>("app");
+            var host = builder.Build();
+
+            var gameService = host.Services.GetRequiredService<GameService>();
+            await gameService.InitAsync("data/building_data.json");
+
+            await host.RunAsync();
         }
     }
 }
