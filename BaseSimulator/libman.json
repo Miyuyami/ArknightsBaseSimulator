@@ -3,39 +3,20 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "library": "bootstrap-switch@3.3.4",
-      "destination": "wwwroot/lib/bootstrap-switch/",
-      "files": [
-        "js/bootstrap-switch.min.js",
-        "css/bootstrap3/bootstrap-switch.min.css"
-      ]
-    },
-    {
       "library": "twitter-bootstrap@4.4.1",
-      "destination": "wwwroot/lib/twitter-bootstrap/",
-      "files": [
-        "js/bootstrap.min.js",
-        "css/bootstrap.min.css"
-      ]
-    },
-    {
-      "library": "open-iconic@1.1.1",
-      "destination": "wwwroot/lib/open-iconic/",
-      "files": [
-        "font/fonts/open-iconic.eot",
-        "font/css/open-iconic-bootstrap.min.css",
-        "font/fonts/open-iconic.otf",
-        "font/fonts/open-iconic.svg",
-        "font/fonts/open-iconic.ttf",
-        "font/fonts/open-iconic.woff"
-      ]
+      "destination": "wwwroot/lib/twitter-bootstrap/"
     },
     {
       "library": "jquery@3.4.1",
-      "destination": "wwwroot/lib/jquery/",
-      "files": [
-        "jquery.min.js"
-      ]
+      "destination": "wwwroot/lib/jquery/"
+    },
+    {
+      "library": "open-iconic@1.1.1",
+      "destination": "wwwroot/lib/open-iconic/"
+    },
+    {
+      "library": "bootstrap-switch@3.3.4",
+      "destination": "wwwroot/lib/bootstrap-switch/"
     }
   ]
 }
