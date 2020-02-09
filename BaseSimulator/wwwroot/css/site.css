@@ -181,3 +181,18 @@ app {
         display: block;
     }
 }
+
+
+
+.divider-right {
+    border-right: thin solid black;
+}
+
+.fixed {
+    position: fixed;
+    z-index: 1030;
+}
+
+.w-60 {
+    width: 60% !important;
+}
