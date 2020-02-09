@@ -45,7 +45,7 @@ namespace Arknights.BaseSimulator.Data
         private Room GetRoom(RoomType roomType) => this.BaseData.Rooms[roomType];
         public bool TryGetRoom(RoomType roomType, out Room room) => this.BaseData.Rooms.TryGetValue(roomType, out room);
 
-        public IEnumerable<RoomSlotData> GetRoomSlots() => this.SaveData.Slots.OfType<RoomSlotData>();
+        public IEnumerable<RoomSlotData> GetRoomSlots() => this.SaveData.Slots.Values.OfType<RoomSlotData>();
         public IEnumerable<RoomSlotData> GetRoomSlots(RoomType roomType) => this.GetRoomSlots().Where(r => r.RoomType == roomType);
 
         private Storey GetStorey(Slot slot) => this.BaseLayout.Storeys[slot.StoreyId];
@@ -72,9 +72,9 @@ namespace Arknights.BaseSimulator.Data
         }
 
         public int GetRoomCount(RoomType roomType) =>
-            this.SaveData.Slots.OfType<RoomSlotData>()
-                               .Where(r => r.RoomType == roomType)
-                               .Count();
+            this.SaveData.Slots.Values.OfType<RoomSlotData>()
+                                      .Where(r => r.RoomType == roomType)
+                                      .Count();
 
         public int GetItemCount(string itemId)
         {

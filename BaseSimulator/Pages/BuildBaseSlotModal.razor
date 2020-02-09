@@ -83,7 +83,7 @@
     {
         if (!this.Game.TryBuild(this.Data, this.PossibleRoomsList[this.SelectedIndex]))
         {
-            throw new Exception("failed to unlock slot");
+            throw new Exception("failed to build in slot");
         }
 
         this.ModalService.Close(ModalResult.Ok<bool>(true));
@@ -106,6 +106,5 @@
     public void OnCarouselSlid(int index)
     {
         this.SelectedIndex = index;
-        Console.WriteLine(this.SelectedIndex);
     }
 }
