@@ -29,8 +29,8 @@
 
                                             @if (!this.Game.DoesMeetBuildNewRequirements(r))
                                             {
-                                                <div class="popover">
-                                                    <BuildNewRequirements />
+                                                <div class="overlay text-center d-flex flex-column justify-content-center text-white">
+                                                    <BuildNewRequirements IsDark="true" />
                                                 </div>
                                             }
                                         </CascadingValue>

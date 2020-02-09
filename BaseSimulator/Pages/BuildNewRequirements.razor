@@ -3,31 +3,36 @@
 </div>
 <div class="row">
     <div class="col">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">Facility</th>
-                    <th scope="col">Level</th>
-                    <th scope="col">Count</th>
-                </tr>
-            </thead>
-            <tbody>
-                @{
-                    foreach (var req in this.Game.GetBuildNewRequirements(this.Room))
-                    {
-                        <tr>
-                            <td>@req.RoomType</td>
-                            <td>@req.Level</td>
-                            <td>@req.Count</td>
-                        </tr>
+        @{
+            var tableClass = this.IsDark ? "table table-dark" : "table";
+
+            <table class="@tableClass table-borderless bg-transparent w-auto ml-auto mr-auto">
+                <thead>
+                    <tr>
+                        <th scope="col">Facility</th>
+                        <th scope="col">Level</th>
+                        <th scope="col">Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var req in this.Game.GetBuildNewRequirements(this.Room))
+                        {
+                            <tr>
+                                <td>@req.RoomType</td>
+                                <td>@req.Level</td>
+                                <td>@req.Count</td>
+                            </tr>
+                        }
                     }
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        }
     </div>
 </div>
 
 @code {
     [CascadingParameter] public Game Game { get; set; }
     [CascadingParameter] public Room Room { get; set; }
+    [Parameter] public bool IsDark { get; set; }
 }
