@@ -7,13 +7,6 @@
             <div class="row h-100 m-3">
                 <div class="col">
                     <div id="BuildRoomCarousel" class="carousel slide h-100 d-flex justify-content-center" data-interval="false" @ref="@Carousel">
-                        <ol class="carousel-indicators">
-                            <li data-target="#BuildRoomCarousel" data-slide-to="0" class="active"></li>
-                            @for (int i = 1; i < this.PossibleRoomsList.Count; i++)
-                            {
-                                <li data-target="#BuildRoomCarousel" data-slide-to="@i"></li>
-                            }
-                        </ol>
                         <div class="carousel-inner w-60">
                             @for (int i = 0; i < this.PossibleRoomsList.Count; i++)
                             {
