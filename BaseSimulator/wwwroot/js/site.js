@@ -19,7 +19,7 @@ function OnSwitchChangeBootstrapSwitch(event, state) {
 }
 
 var OnCarouselSlidCallbackName;
-function SetSlidCarousel(elem, funcCallback) {
+function SetOnCarouselSlid(elem, funcCallback) {
     $(elem).off("slid.bs.carousel", OnCarouselSlid);
     $(elem).on("slid.bs.carousel", OnCarouselSlid);
 

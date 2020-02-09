@@ -91,7 +91,7 @@
     {
         if (firstRender)
         {
-            await this.JSRuntime.InvokeVoidAsync("SetSlidCarousel", this.Carousel, DotNetObjectReference.Create(this));
+            await this.JSRuntime.InvokeVoidAsync("SetOnCarouselSlid", this.Carousel, DotNetObjectReference.Create(this));
         }
     }
 
