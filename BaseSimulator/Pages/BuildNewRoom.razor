@@ -46,7 +46,7 @@
                                 entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
                                 break;
                             case RoomType.Hire:
-                                entries.Add(("Recruit Efficiency", $"{this.Game.BaseData.HireData.Phases[this.Game.LevelToPhase(this.Level)].EconomizeRate * 100}%").ToMarkup());
+                                entries.Add(("Resource Consumed", $"{-this.Game.BaseData.HireData.Phases[this.Game.LevelToPhase(this.Level)].EconomizeRate * 100}%").ToMarkup());
                                 entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
                                 break;
                             case RoomType.Training:
