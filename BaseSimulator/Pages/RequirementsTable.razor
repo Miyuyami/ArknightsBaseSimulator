@@ -1,0 +1,41 @@
+﻿<div class="row">
+    <div class="col">@this.HeaderText</div>
+</div>
+<div class="row">
+    <div class="col">
+        @{
+            var tableClass = this.IsDark ? "table table-dark" : "table";
+            var entriesList = this.Entries.ToList();
+
+            <table class="@tableClass table-borderless bg-transparent w-auto ml-auto mr-auto">
+                <thead>
+                    <tr>
+                        @for (int i = 0; i < entriesList.Count; i++)
+                        {
+                            var e = entriesList[i].header;
+
+                            <th scope="col">@e</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var values in entriesList.Select(t => t.values).Transpose())
+                    {
+                        <tr>
+                            @foreach (var e in values)
+                            {
+                                <td>@e</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public IEnumerable<(MarkupString header, IEnumerable<MarkupString> values)> Entries { get; set; }
+    [Parameter] public string HeaderText { get; set; }
+    [Parameter] public bool IsDark { get; set; }
+}

@@ -22,8 +22,16 @@
 
                                             @if (!this.Game.DoesMeetBuildNewRequirements(r))
                                             {
+                                                var requirements = this.Game.GetBuildNewRequirements(r);
+                                                var list = new List<(MarkupString header, IEnumerable<MarkupString> values)>()
+                                                {
+                                                    ("Facility".ToMarkup(), requirements.Select(br => br.RoomType.ToString().ToMarkup())),
+                                                    ("Level".ToMarkup(), requirements.Select(br => br.Level.ToString().ToMarkup())),
+                                                    ("Count".ToMarkup(), requirements.Select(br => br.Count.ToString().ToMarkup())),
+                                                };
+
                                                 <div class="overlay text-center d-flex flex-column justify-content-center text-white">
-                                                    <BuildNewRequirements IsDark="true" />
+                                                    <RequirementsTable Entries="@list" IsDark="true" HeaderText="Requirements not met. Unable to build." />
                                                 </div>
                                             }
                                         </CascadingValue>
