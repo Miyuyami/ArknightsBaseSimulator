@@ -1,0 +1,15 @@
+﻿<table class="table">
+    <tbody>
+        @foreach (var (header, value) in this.Entries)
+        {
+            <tr>
+                <th scope="row">@header</th>
+                <td class="text-right">@value</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter] public IEnumerable<(MarkupString header, MarkupString value)> Entries { get; set; }
+}

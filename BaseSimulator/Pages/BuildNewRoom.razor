@@ -15,45 +15,55 @@
                 <div class="col-5 d-flex align-items-end pb-4">
                     @($"{this.Room.Name} {this.Game.GetRoomCount(this.Room.Id)}/{this.Room.MaxCount}")
                 </div>
-                <div class="col-7">
-                    @switch (this.Room.Id)
-                    {
-                        case RoomType.Control:
-                            <ControlRoomMiniInfo Level="1" />
-                            break;
-                        case RoomType.Power:
-                            <PowerRoomMiniInfo Level="1" />
-                            break;
-                        case RoomType.Manufacture:
-                            <ManufactureRoomMiniInfo Level="1" />
-                            break;
-                        case RoomType.Trading:
-                            <TradingRoomMiniInfo Level="1" />
-                            break;
-                        case RoomType.Dormitory:
-                            <DormitoryRoomMiniInfo Level="1" />
-                            break;
-                        case RoomType.Workshop:
-                            <WorkshopRoomMiniInfo Level="1" />
-                            break;
-                        case RoomType.Hire:
-                            <HireRoomMiniInfo Level="1" />
-                            break;
-                        case RoomType.Training:
-                            <TrainingRoomMiniInfo Level="1" />
-                            break;
-                        case RoomType.Meeting:
-                            <MeetingRoomMiniInfo Level="1" />
-                            break;
-                        @*case RoomType.Elevator:
-                                <ElevatorRoomMiniInfo Level="1" />
+                <div class="col-6">
+                    @{
+                        var entries = new List<(MarkupString header, MarkupString value)>();
+
+                        switch (this.Room.Id)
+                        {
+                            case RoomType.Control:
+                                entries.Add(("Stationed Operators", this.Room.Phases[this.Game.LevelToPhase(this.Level)].MaxStationedNum).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
                                 break;
-                            case RoomType.Corridor:
-                                <CorridorRoomMiniInfo Level="1" />
-                                break;*@
-                        default:
-                            <div>INVALID ROOM</div>
-                            break;
+                            case RoomType.Power:
+                                entries.Add(("Power", this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                entries.Add(("Power Consumed", 0).ToMarkup());
+                                break;
+                            case RoomType.Manufacture:
+                                entries.Add(("Capacity", this.Game.BaseData.ManufactData.Phases[this.Game.LevelToPhase(this.Level)].OutputCapacity).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                break;
+                            case RoomType.Trading:
+                                entries.Add(("Order Limit", this.Game.BaseData.TradingData.Phases[this.Game.LevelToPhase(this.Level)].OrderLimit).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                break;
+                            case RoomType.Dormitory:
+                                entries.Add(("Morale Restored/hr", this.Game.ManpowerToString(this.Game.BaseData.DormData.Phases[this.Game.LevelToPhase(this.Level)].ManpowerRecover)).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                break;
+                            case RoomType.Workshop:
+                                entries.Add(("New Formulas", this.Game.GetWorkshopFormulas(this.Level, 1).Count()).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                break;
+                            case RoomType.Hire:
+                                entries.Add(("Recruit Efficiency", $"{this.Game.BaseData.HireData.Phases[this.Game.LevelToPhase(this.Level)].EconomizeRate * 100}%").ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                break;
+                            case RoomType.Training:
+                                entries.Add(("Level Limit", this.Game.BaseData.TrainingData.Phases[this.Game.LevelToPhase(this.Level)].SpecSkillLvlLimit).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                break;
+                            case RoomType.Meeting:
+                                entries.Add(("Additional Friend Slots", this.Game.BaseData.MeetingData.Phases[this.Game.LevelToPhase(this.Level)].FriendSlotInc).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                break;
+                            default:
+                                entries.Add(("error", "error").ToMarkup());
+                                entries.Add(("error", "error").ToMarkup());
+                                break;
+                        }
+
+                        <RoomInfoTable Entries="@entries" />
                     }
                 </div>
             </div>
@@ -65,4 +75,5 @@
     [CascadingParameter] public Game Game { get; set; }
     [CascadingParameter] public Room Room { get; set; }
 
+    private int Level => 1;
 }
