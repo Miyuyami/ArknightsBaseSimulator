@@ -1,0 +1,89 @@
+﻿@inject IModalService ModalService
+
+<div class="container-fluid d-flex flex-column h-100">
+    @if (this.Game.TryGetRoom(this.Data, out Room room))
+    {
+        bool canDowngrade = room.CanLevelDown;
+        bool canUpgrade = this.Game.IsUpgradeable(this.Data);
+        string downgradeText = "🔻 Downgrade";
+        string upgradeText = "💲 Upgrade";
+
+        <div class="row modal-header">
+            <div class="col-8">
+                @room.Name
+            </div>
+            <div class="col-4">
+                @this.Data.Level
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                @* TODO: specific room Info table *@
+            </div>
+        </div>
+        <div class="row pt-4 pb-2">
+            <div class="col">
+                Facility Description
+            </div>
+        </div>
+        <div class="row flex-fill">
+            <div class="col">
+                @room.Description
+            </div>
+        </div>
+        <div class="row">
+            @if (canDowngrade)
+            {
+                <div class="col btn btn-dark m-1" @onclick="@this.OnClickDowngrade">@downgradeText</div>
+            }
+            else
+            {
+                <div class="col btn btn-dark m-1 disabled">@downgradeText</div>
+            }
+
+            @if (canUpgrade)
+            {
+                <div class="col btn btn-dark m-1" @onclick="@this.OnClickUpgrade">@upgradeText</div>
+            }
+            else
+            {
+                <div class="col btn btn-dark m-1 disabled">@upgradeText</div>
+            }
+        </div>
+    }
+    else
+    {
+        <div>Invalid room.</div>
+    }
+</div>
+
+@code {
+    [CascadingParameter] private ModalParameters Parameters { get; set; }
+
+    public Game Game { get; set; }
+    public RoomSlotData Data { get; set; }
+
+    protected override void OnInitialized()
+    {
+        this.Game = this.Parameters.Get<Game>("Game");
+        this.Data = this.Parameters.Get<RoomSlotData>("Data");
+    }
+
+    private void OnClickDowngrade(MouseEventArgs e)
+    {
+
+    }
+
+    private void OnClickUpgrade(MouseEventArgs e)
+    {
+        //var parameters = new ModalParameters();
+        //parameters.Add("Game", this.Game);
+        //parameters.Add("Data", this.Data);
+        //var options = new ModalOptions()
+        //{
+        //    Position = "blazored-modal-center",
+        //    HideCloseButton = true,
+        //};
+        //this.ModalService.Show<UpgradeBaseSlotModal>("", parameters, options);
+    }
+}

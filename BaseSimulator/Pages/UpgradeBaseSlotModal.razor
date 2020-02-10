@@ -1,0 +1,37 @@
+﻿@inject IModalService ModalService
+
+<div class="container-fluid d-flex flex-column" style="width: 80em; height: 20em;">
+    <CascadingValue Value="@this.Game">
+        @{
+
+        }
+    </CascadingValue>
+</div>
+
+@code {
+    [CascadingParameter] private ModalParameters Parameters { get; set; }
+
+    public Game Game { get; set; }
+    public RoomSlotData Data { get; set; }
+
+    protected override void OnInitialized()
+    {
+        this.Game = this.Parameters.Get<Game>("Game");
+        this.Data = this.Parameters.Get<RoomSlotData>("Data");
+    }
+
+    private void Confirm()
+    {
+        if (!this.Game.TryUpgrade(this.Data))
+        {
+            throw new Exception("failed to upgrade room");
+        }
+
+        this.ModalService.Close(ModalResult.Ok<bool>(true));
+    }
+
+    private void Cancel()
+    {
+        this.ModalService.Cancel();
+    }
+}

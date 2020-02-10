@@ -40,9 +40,11 @@ namespace Arknights.BaseSimulator.Data
 
         private Slot GetSlot(SlotData slotData) => this.BaseLayout.Slots[slotData.Id];
         private Slot GetSlot(string id) => this.BaseLayout.Slots[id];
-        public bool TryGetSlot(SlotData slotData, out Slot slot) => this.BaseLayout.Slots.TryGetValue(slotData.Id, out slot);
+        public bool TryGetSlot(SlotData slotData, out Slot slot) => this.TryGetSlot(slotData.Id, out slot);
+        public bool TryGetSlot(string slotId, out Slot slot) => this.BaseLayout.Slots.TryGetValue(slotId, out slot);
 
         private Room GetRoom(RoomType roomType) => this.BaseData.Rooms[roomType];
+        public bool TryGetRoom(RoomSlotData roomSlotData, out Room room) => this.TryGetRoom(roomSlotData.RoomType, out room);
         public bool TryGetRoom(RoomType roomType, out Room room) => this.BaseData.Rooms.TryGetValue(roomType, out room);
 
         public IEnumerable<RoomSlotData> GetRoomSlots() => this.SaveData.Slots.Values.OfType<RoomSlotData>();
@@ -257,6 +259,8 @@ namespace Arknights.BaseSimulator.Data
             return this.DoesMeetBuildNewRequirements(room);
         }
 
+        public bool TryUpgrade(Slot slot, Room room) => this.SlotHelper(this.TryUpgrade, slot, room);
+        public bool TryUpgrade(RoomSlotData slotData) => this.SlotHelper(this.TryUpgrade, slotData);
         private bool TryUpgrade(Slot slot, Room room, RoomSlotData slotData)
         {
             if (!this.CanUpgrade(slot, room, slotData))
@@ -268,17 +272,38 @@ namespace Arknights.BaseSimulator.Data
             throw new NotImplementedException();
         }
 
-        public bool CanUpgrade(Slot slot, Room room) => this.SlotHelper<RoomSlotData>(this.CanUpgrade, slot, room);
-        public bool CanUpgrade(RoomSlotData slotData, Room room) => this.SlotHelper(this.CanUpgrade, slotData, room);
-        private bool CanUpgrade(Slot slot, Room room, RoomSlotData slotData)
+        public bool IsUpgradeable(Slot slot, Room room) => this.SlotHelper(this.IsUpgradeable, slot, room);
+        public bool IsUpgradeable(RoomSlotData slotData) => this.SlotHelper(this.IsUpgradeable, slotData);
+        public bool IsUpgradeable(Slot slot, Room room, RoomSlotData slotData)
         {
             if (slotData.Level >= room.Phases.Count)
             {
                 return false;
             }
 
+            return true;
+        }
+
+        public bool CanUpgrade(Slot slot, Room room) => this.SlotHelper(this.CanUpgrade, slot, room);
+        public bool CanUpgrade(RoomSlotData slotData) => this.SlotHelper(this.CanUpgrade, slotData);
+        private bool CanUpgrade(Slot slot, Room room, RoomSlotData slotData)
+        {
+            if (!this.IsUpgradeable(slot, room, slotData))
+            {
+                return false;
+            }
+
             return this.DoesMeetUpgradeRequirements(slot, room, slotData);
         }
+
+        public bool HasRoomInfo(RoomSlotData roomSlotData) => this.HasRoomInfo(roomSlotData.RoomType);
+        public bool HasRoomInfo(RoomType roomType) =>
+            roomType switch
+            {
+                RoomType.Elevator => false,
+                RoomType.Corridor => false,
+                _ => true,
+            };
 
         public bool DoesMeetUnlockRequirements(Slot slot) => this.SlotHelper<LockedSlotData>(this.DoesMeetUnlockRequirements, slot);
         public bool DoesMeetUnlockRequirements(LockedSlotData slotData) => this.SlotHelper(this.DoesMeetUnlockRequirements, slotData);
@@ -358,6 +383,35 @@ namespace Arknights.BaseSimulator.Data
 
 
         #region Slot helpers
+        private bool SlotHelper(Func<Slot, Room, RoomSlotData, bool> func, Slot slot, Room room)
+        {
+            if (!this.TryGetSlotData(slot, out SlotData slotData))
+            {
+                return false;
+            }
+
+            if (!(slotData is RoomSlotData roomSlotData))
+            {
+                return false;
+            }
+
+            return func(slot, room, roomSlotData);
+        }
+        private bool SlotHelper(Func<Slot, Room, RoomSlotData, bool> func, RoomSlotData roomSlotData)
+        {
+            if (!this.TryGetSlot(roomSlotData.Id, out Slot slot))
+            {
+                return false;
+            }
+
+            if (!this.TryGetRoom(roomSlotData.RoomType, out Room room))
+            {
+                return false;
+            }
+
+            return func(slot, room, roomSlotData);
+        }
+
         private bool SlotHelper<SD>(Func<Slot, Room, SD, bool> func, Slot slot, Room room) where SD : SlotData
         {
             if (!this.TryGetSlotData(slot, out SlotData slotData))

@@ -1,12 +1,14 @@
 ﻿@inherits AbstractClickableBaseSlot
 
+@inject IModalService ModalService
+
 @{
-    <div class="row m-0 btn btn-info w-100 h-100 d-flex align-items-center justify-content-center">
+    <div class="row m-0 btn btn-info w-100 h-100 d-flex align-items-center justify-content-center" @onclick="@this.InternalOnClick">
         <div class="col-8 p-0">
             @this.GetRoomTypeAsString()
         </div>
         <div class="col-4 p-0">
-            @this.Data.Level
+            Lv.@this.Data.Level
         </div>
     </div>
 }
@@ -14,12 +16,35 @@
 @code {
     [CascadingParameter] public RoomSlotData Data { get; set; }
 
+    private bool CanUpgrade => this.Game.CanUpgrade(this.Data);
+
     private string GetRoomTypeAsString() => this.ToString(this.Data.RoomType);
 
     private string ToString(RoomType roomType) =>
         roomType switch
         {
             RoomType.Elevator => RoomType.Elevator.ToString().First().ToString(),
+            RoomType.Corridor => RoomType.Corridor.ToString().First().ToString(),
             _ => roomType.ToString(),
         };
+
+    private async Task InternalOnClick(MouseEventArgs e)
+    {
+        if (this.IsInBuildMode &&
+            this.Game.HasRoomInfo(this.Data))
+        {
+            var parameters = new ModalParameters();
+            parameters.Add("Game", this.Game);
+            parameters.Add("Data", this.Data);
+            var options = new ModalOptions()
+            {
+                Position = "blazored-modal-right",
+                Style = "blazored-modal h-100",
+                HideCloseButton = true,
+            };
+            this.ModalService.Show<RoomInfoModal>("", parameters, options);
+        }
+
+        await this.OnClick.InvokeAsync(this.Data);
+    }
 }

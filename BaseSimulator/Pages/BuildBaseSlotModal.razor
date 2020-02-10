@@ -76,7 +76,7 @@
     {
         if (!this.Game.TryBuild(this.Data, this.PossibleRoomsList[this.SelectedIndex]))
         {
-            throw new Exception("failed to build in slot");
+            throw new Exception("failed to build room");
         }
 
         this.ModalService.Close(ModalResult.Ok<bool>(true));

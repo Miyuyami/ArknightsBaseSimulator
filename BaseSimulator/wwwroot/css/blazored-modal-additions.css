@@ -1,4 +1,15 @@
 ﻿.blazored-modal-right .blazored-modal-wrapper {
     position: absolute;
-    right: 32px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 25%;
+}
+
+.blazored-modal-header {
+    display: none;
+}
+
+.blazored-modal-content {
+    height: 100%;
 }
