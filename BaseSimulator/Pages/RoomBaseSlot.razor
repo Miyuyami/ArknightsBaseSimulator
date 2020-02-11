@@ -42,7 +42,7 @@
                 Style = "blazored-modal h-100",
                 HideCloseButton = true,
             };
-            this.ModalService.Show<RoomInfoModal>("", parameters, options);
+            this.ModalService.Show<RoomInfoModal>(parameters, options);
         }
 
         await this.OnClick.InvokeAsync(this.Data);

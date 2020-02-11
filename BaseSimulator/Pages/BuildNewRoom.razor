@@ -1,7 +1,5 @@
 ﻿@{
-    var buildCost = this.Game.GetNewRoomBuildCost(this.Room);
-
-    <CascadingValue Value="@buildCost.Items">
+    <CascadingValue Value="@this.Game.GetNewRoomBuildCost(this.Room)">
         <div>
             <div class="row">
                 <div class="col-4">
@@ -18,44 +16,45 @@
                 <div class="col-6">
                     @{
                         var entries = new List<(MarkupString header, MarkupString value)>();
+                        var phase = this.Game.LevelToPhase(this.Level);
 
                         switch (this.Room.Id)
                         {
                             case RoomType.Control:
-                                entries.Add(("Stationed Operators", this.Room.Phases[this.Game.LevelToPhase(this.Level)].MaxStationedNum).ToMarkup());
-                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                entries.Add(("Stationed Operators", this.Room.Phases[phase].MaxStationedNum).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[phase].Electricity).ToMarkup());
                                 break;
                             case RoomType.Power:
-                                entries.Add(("Power", this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                entries.Add(("Power", this.Room.Phases[phase].Electricity).ToMarkup());
                                 entries.Add(("Power Consumed", 0).ToMarkup());
                                 break;
                             case RoomType.Manufacture:
-                                entries.Add(("Capacity", this.Game.BaseData.ManufactData.Phases[this.Game.LevelToPhase(this.Level)].OutputCapacity).ToMarkup());
-                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                entries.Add(("Capacity", this.Game.BaseData.ManufactData.Phases[phase].OutputCapacity).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[phase].Electricity).ToMarkup());
                                 break;
                             case RoomType.Trading:
-                                entries.Add(("Order Limit", this.Game.BaseData.TradingData.Phases[this.Game.LevelToPhase(this.Level)].OrderLimit).ToMarkup());
-                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                entries.Add(("Order Limit", this.Game.BaseData.TradingData.Phases[phase].OrderLimit).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[phase].Electricity).ToMarkup());
                                 break;
                             case RoomType.Dormitory:
-                                entries.Add(("Morale Restored/hr", this.Game.ManpowerToString(this.Game.BaseData.DormData.Phases[this.Game.LevelToPhase(this.Level)].ManpowerRecover)).ToMarkup());
-                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                entries.Add(("Morale Restored/hr", this.Game.ManpowerToString(this.Game.BaseData.DormData.Phases[phase].ManpowerRecover)).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[phase].Electricity).ToMarkup());
                                 break;
                             case RoomType.Workshop:
                                 entries.Add(("New Formulas", this.Game.GetWorkshopFormulas(this.Level, 1).Count()).ToMarkup());
-                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[phase].Electricity).ToMarkup());
                                 break;
                             case RoomType.Hire:
-                                entries.Add(("Resource Consumed", $"{-this.Game.BaseData.HireData.Phases[this.Game.LevelToPhase(this.Level)].EconomizeRate * 100}%").ToMarkup());
-                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                entries.Add(("Resource Consumed", $"{-this.Game.BaseData.HireData.Phases[phase].EconomizeRate * 100}%").ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[phase].Electricity).ToMarkup());
                                 break;
                             case RoomType.Training:
-                                entries.Add(("Level Limit", this.Game.BaseData.TrainingData.Phases[this.Game.LevelToPhase(this.Level)].SpecSkillLvlLimit).ToMarkup());
-                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                entries.Add(("Level Limit", this.Game.BaseData.TrainingData.Phases[phase].SpecSkillLvlLimit).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[phase].Electricity).ToMarkup());
                                 break;
                             case RoomType.Meeting:
-                                entries.Add(("Additional Friend Slots", this.Game.BaseData.MeetingData.Phases[this.Game.LevelToPhase(this.Level)].FriendSlotInc).ToMarkup());
-                                entries.Add(("Power Consumed", -this.Room.Phases[this.Game.LevelToPhase(this.Level)].Electricity).ToMarkup());
+                                entries.Add(("Additional Friend Slots", this.Game.BaseData.MeetingData.Phases[phase].FriendSlotInc).ToMarkup());
+                                entries.Add(("Power Consumed", -this.Room.Phases[phase].Electricity).ToMarkup());
                                 break;
                             default:
                                 entries.Add(("error", "error").ToMarkup());

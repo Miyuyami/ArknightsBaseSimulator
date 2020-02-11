@@ -20,54 +20,55 @@
             <div class="col">
                 @{
                     var entries = new List<(MarkupString header, MarkupString value)>();
+                    var phase = this.Game.LevelToPhase(this.Data.Level);
 
                     switch (room.Id)
                     {
                         case RoomType.Control:
                             entries.Add(("Level Limit", this.Data.Level).ToMarkup());
-                            entries.Add(("Power Consumed", -room.Phases[this.Game.LevelToPhase(this.Data.Level)].Electricity).ToMarkup());
-                            entries.Add(("Operators", room.Phases[this.Game.LevelToPhase(this.Data.Level)].MaxStationedNum).ToMarkup());
+                            entries.Add(("Power Consumed", -room.Phases[phase].Electricity).ToMarkup());
+                            entries.Add(("Operators", room.Phases[phase].MaxStationedNum).ToMarkup());
                             break;
                         case RoomType.Power:
-                            entries.Add(("Power", room.Phases[this.Game.LevelToPhase(this.Data.Level)].Electricity).ToMarkup());
+                            entries.Add(("Power", room.Phases[phase].Electricity).ToMarkup());
                             entries.Add(("Power Consumed", 0).ToMarkup());
-                            entries.Add(("Operators", room.Phases[this.Game.LevelToPhase(this.Data.Level)].MaxStationedNum).ToMarkup());
+                            entries.Add(("Operators", room.Phases[phase].MaxStationedNum).ToMarkup());
                             break;
                         case RoomType.Manufacture:
-                            entries.Add(("Capacity", this.Game.BaseData.ManufactData.Phases[this.Game.LevelToPhase(this.Data.Level)].OutputCapacity).ToMarkup());
-                            entries.Add(("Power Consumed", -room.Phases[this.Game.LevelToPhase(this.Data.Level)].Electricity).ToMarkup());
-                            entries.Add(("Operators", room.Phases[this.Game.LevelToPhase(this.Data.Level)].MaxStationedNum).ToMarkup());
+                            entries.Add(("Capacity", this.Game.BaseData.ManufactData.Phases[phase].OutputCapacity).ToMarkup());
+                            entries.Add(("Power Consumed", -room.Phases[phase].Electricity).ToMarkup());
+                            entries.Add(("Operators", room.Phases[phase].MaxStationedNum).ToMarkup());
                             break;
                         case RoomType.Trading:
-                            entries.Add(("Order Limit", this.Game.BaseData.TradingData.Phases[this.Game.LevelToPhase(this.Data.Level)].OrderLimit).ToMarkup());
-                            entries.Add(("Power Consumed", -room.Phases[this.Game.LevelToPhase(this.Data.Level)].Electricity).ToMarkup());
-                            entries.Add(("Operators", room.Phases[this.Game.LevelToPhase(this.Data.Level)].MaxStationedNum).ToMarkup());
+                            entries.Add(("Order Limit", this.Game.BaseData.TradingData.Phases[phase].OrderLimit).ToMarkup());
+                            entries.Add(("Power Consumed", -room.Phases[phase].Electricity).ToMarkup());
+                            entries.Add(("Operators", room.Phases[phase].MaxStationedNum).ToMarkup());
                             break;
                         case RoomType.Dormitory:
-                            entries.Add(("Morale Restored/hr", this.Game.ManpowerToString(this.Game.BaseData.DormData.Phases[this.Game.LevelToPhase(this.Data.Level)].ManpowerRecover)).ToMarkup());
-                            entries.Add(("Ambience Limit", this.Game.BaseData.DormData.Phases[this.Game.LevelToPhase(this.Data.Level)].DecorationLimit).ToMarkup());
-                            entries.Add(("Power Consumed", -room.Phases[this.Game.LevelToPhase(this.Data.Level)].Electricity).ToMarkup());
-                            entries.Add(("Operators", room.Phases[this.Game.LevelToPhase(this.Data.Level)].MaxStationedNum).ToMarkup());
+                            entries.Add(("Morale Restored/hr", this.Game.ManpowerToString(this.Game.BaseData.DormData.Phases[phase].ManpowerRecover)).ToMarkup());
+                            entries.Add(("Ambience Limit", this.Game.BaseData.DormData.Phases[phase].DecorationLimit).ToMarkup());
+                            entries.Add(("Power Consumed", -room.Phases[phase].Electricity).ToMarkup());
+                            entries.Add(("Operators", room.Phases[phase].MaxStationedNum).ToMarkup());
                             break;
                         case RoomType.Workshop:
-                            entries.Add(("Power Consumed", -room.Phases[this.Game.LevelToPhase(this.Data.Level)].Electricity).ToMarkup());
-                            entries.Add(("Operators", room.Phases[this.Game.LevelToPhase(this.Data.Level)].MaxStationedNum).ToMarkup());
+                            entries.Add(("Power Consumed", -room.Phases[phase].Electricity).ToMarkup());
+                            entries.Add(("Operators", room.Phases[phase].MaxStationedNum).ToMarkup());
                             break;
                         case RoomType.Hire:
-                            entries.Add(("Contact Speed", this.Game.BaseData.HireData.Phases[this.Game.LevelToPhase(this.Data.Level)].ResSpeed / 100).ToMarkup());
-                            entries.Add(("Resource Consumed", $"{-this.Game.BaseData.HireData.Phases[this.Game.LevelToPhase(this.Data.Level)].EconomizeRate * 100}%").ToMarkup());
-                            entries.Add(("Power Consumed", -room.Phases[this.Game.LevelToPhase(this.Data.Level)].Electricity).ToMarkup());
-                            entries.Add(("Operators", room.Phases[this.Game.LevelToPhase(this.Data.Level)].MaxStationedNum).ToMarkup());
+                            entries.Add(("Contact Speed", this.Game.BaseData.HireData.Phases[phase].ResSpeed / 100).ToMarkup());
+                            entries.Add(("Resource Consumed", $"{-this.Game.BaseData.HireData.Phases[phase].EconomizeRate * 100}%").ToMarkup());
+                            entries.Add(("Power Consumed", -room.Phases[phase].Electricity).ToMarkup());
+                            entries.Add(("Operators", room.Phases[phase].MaxStationedNum).ToMarkup());
                             break;
                         case RoomType.Training:
-                            entries.Add(("Level Limit", this.Game.BaseData.TrainingData.Phases[this.Game.LevelToPhase(this.Data.Level)].SpecSkillLvlLimit).ToMarkup());
-                            entries.Add(("Power Consumed", -room.Phases[this.Game.LevelToPhase(this.Data.Level)].Electricity).ToMarkup());
-                            entries.Add(("Operators", room.Phases[this.Game.LevelToPhase(this.Data.Level)].MaxStationedNum).ToMarkup());
+                            entries.Add(("Level Limit", this.Game.BaseData.TrainingData.Phases[phase].SpecSkillLvlLimit).ToMarkup());
+                            entries.Add(("Power Consumed", -room.Phases[phase].Electricity).ToMarkup());
+                            entries.Add(("Operators", room.Phases[phase].MaxStationedNum).ToMarkup());
                             break;
                         case RoomType.Meeting:
-                            entries.Add(("Friend Slots", this.Game.BaseData.MeetingData.Phases[this.Game.LevelToPhase(this.Data.Level)].FriendSlotInc).ToMarkup());
-                            entries.Add(("Power Consumed", -room.Phases[this.Game.LevelToPhase(this.Data.Level)].Electricity).ToMarkup());
-                            entries.Add(("Operators", room.Phases[this.Game.LevelToPhase(this.Data.Level)].MaxStationedNum).ToMarkup());
+                            entries.Add(("Friend Slots", this.Game.BaseData.MeetingData.Phases[phase].FriendSlotInc).ToMarkup());
+                            entries.Add(("Power Consumed", -room.Phases[phase].Electricity).ToMarkup());
+                            entries.Add(("Operators", room.Phases[phase].MaxStationedNum).ToMarkup());
                             break;
                         default:
                             entries.Add(("error", "error").ToMarkup());
@@ -134,14 +135,14 @@
 
     private void OnClickUpgrade(MouseEventArgs e)
     {
-        //var parameters = new ModalParameters();
-        //parameters.Add("Game", this.Game);
-        //parameters.Add("Data", this.Data);
-        //var options = new ModalOptions()
-        //{
-        //    Position = "blazored-modal-center",
-        //    HideCloseButton = true,
-        //};
-        //this.ModalService.Show<UpgradeBaseSlotModal>("", parameters, options);
+        var parameters = new ModalParameters();
+        parameters.Add("Game", this.Game);
+        parameters.Add("Data", this.Data);
+        var options = new ModalOptions()
+        {
+            Position = "blazored-modal-center",
+            HideCloseButton = true,
+        };
+        this.ModalService.Show<UpgradeBaseSlotModal>(parameters, options);
     }
 }

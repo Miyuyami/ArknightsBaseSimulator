@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Blazored.Modal;
+using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace Arknights.BaseSimulator
@@ -19,5 +21,8 @@ namespace Arknights.BaseSimulator
                       .Select(g => g.ToList())
                       .ToList();
         }
+
+        public static void Show<T>(this IModalService modalService, ModalParameters parameters = null, ModalOptions options = null) where T : ComponentBase
+            => modalService.Show<T>("", parameters, options);
     }
 }

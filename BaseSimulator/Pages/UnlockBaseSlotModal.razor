@@ -5,59 +5,84 @@
         @{
             if (this.Game.TryGetSlot(this.Data, out Slot slot))
             {
-                <CascadingValue Value="@slot">
-                    @if (this.Game.CanUnlock(slot))
-                    {
-                        <div class="row h-100">
-                            <div class="col-6 divider-right">
-                                <SlotUnlockChange />
+                @if (this.Game.CanUnlock(slot))
+                {
+                    var entries = new List<(MarkupString header, MarkupString value)>();
+                    var ars = Constants.ArrowRightSpan.Value;
+
+                    var labor = this.Game.GetLaborCount();
+                    var maxLabor = this.Game.GetMaxLabor();
+
+                    entries.Add((this.Game.GetLaborName(), $"{labor}/{maxLabor} {ars} {labor + slot.ProvideLabor}/{maxLabor + slot.ProvideLabor}").ToMarkup());
+                    <div class="row h-100">
+                        <div class="col-6 divider-right">
+                            <div class="row">
+                                <div class="col">
+                                    Drones obtained
+                                </div>
                             </div>
-                            <div class="col-6">
-                                <SlotUnlockCost />
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col btn btn-dark m-1" @onclick="Cancel">
-                                ❌ Cancel
-                            </div>
-                            <div class="col btn btn-dark m-1" @onclick="Confirm">
-                                ✔ Confirm
-                            </div>
-                        </div>
-                    }
-                    else if (this.Game.DoesMeetUnlockRequirements(slot))
-                    {
-                        <div class="row h-100">
-                            <div class="col">The slot is not connected to the control center. Unable to clean.</div>
-                        </div>
-                        <div class="row">
-                            <div class="col btn btn-dark" @onclick="Cancel">
-                                ✔ OK
+                            <div class="row">
+                                <div class="col">
+                                    <RoomInfoTable Entries="@entries" StyleClasses="w-auto mr-auto" />
+                                </div>
                             </div>
                         </div>
-                    }
-                    else
-                    {
-                        var requirements = this.Game.GetUnlockRequirements(slot);
-                        var list = new List<(MarkupString header, IEnumerable<MarkupString> values)>()
-                        {
+                        <div class="col-6">
+                            <CascadingValue Value="@this.Game.GetCleanCosts(slot)">
+                                <div class="row">
+                                    <div class="col">
+                                        Consume the following materials to clean the room?
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <RoomCostsTable EmptyText="No cost. Cleaning is free." />
+                                    </div>
+                                </div>
+                            </CascadingValue>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col btn btn-dark m-1" @onclick="Cancel">
+                            ❌ Cancel
+                        </div>
+                        <div class="col btn btn-dark m-1" @onclick="Confirm">
+                            ✔ Confirm
+                        </div>
+                    </div>
+                }
+                else if (this.Game.DoesMeetUnlockRequirements(slot))
+                {
+                    <div class="row h-100">
+                        <div class="col">The slot is not connected to the control center. Unable to clean.</div>
+                    </div>
+                    <div class="row">
+                        <div class="col btn btn-dark" @onclick="Cancel">
+                            ✔ OK
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    var requirements = this.Game.GetUnlockRequirements(slot);
+                    var list = new List<(MarkupString header, IEnumerable<MarkupString> values)>()
+{
                             ("Facility".ToMarkup(), requirements.Select(br => br.RoomType.ToString().ToMarkup())),
                             ("Level".ToMarkup(), requirements.Select(br => br.Level.ToString().ToMarkup())),
                             ("Count".ToMarkup(), requirements.Select(br => br.Count.ToString().ToMarkup())),
                         };
 
-                        <div class="row h-100">
-                            <div class="col overlay position-relative text-center d-flex flex-column justify-content-center text-white">
-                                <RequirementsTable Entries="@list" IsDark="true" HeaderText="No signal detected on this floor. Unable to clean." />
-                            </div>
+                    <div class="row h-100">
+                        <div class="col overlay position-relative text-center d-flex flex-column justify-content-center text-white">
+                            <RequirementsTable Entries="@list" IsDark="true" HeaderText="No signal detected on this floor. Unable to clean." />
                         </div>
-                        <div class="row">
-                            <div class="col btn btn-dark" @onclick="Cancel">
-                                ✔ OK
-                            </div>
+                    </div>
+                    <div class="row">
+                        <div class="col btn btn-dark" @onclick="Cancel">
+                            ✔ OK
                         </div>
-                    }
-                </CascadingValue>
+                    </div>
+                }
             }
             else
             {

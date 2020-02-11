@@ -99,7 +99,6 @@ namespace Arknights.BaseSimulator.Data
                 _ => throw new KeyNotFoundException(),
             };
 
-        // TODO: return BuildCost
         public IEnumerable<Cost> GetCleanCosts(Slot slot)
         {
             var room = this.GetPossibleBuildRooms(slot)
@@ -112,16 +111,11 @@ namespace Arknights.BaseSimulator.Data
 
         public BuildCost GetNewRoomBuildCost(Room room) => this.GetRoomBuildCost(room, 1);
 
-        public BuildCost GetRoomUpgradeCosts(Slot slot)
+        public BuildCost GetRoomUpgradeCosts(RoomSlotData slotData)
         {
-            if (!this.TryGetRoomData(slot, out RoomSlotData roomSlotData))
-            {
-                throw new Exception("slot not found");
-            }
+            var room = this.GetRoom(slotData.RoomType);
 
-            var room = this.GetRoom(roomSlotData.RoomType);
-
-            return this.GetRoomBuildCost(room, roomSlotData.Level + 1);
+            return this.GetRoomBuildCost(room, slotData.Level + 1);
         }
 
         public BuildCost GetRoomDowngradeRefundCost(Slot slot)
@@ -325,7 +319,7 @@ namespace Arknights.BaseSimulator.Data
                 .All(this.IsRequirementMet);
 
         public bool DoesMeetUpgradeRequirements(Slot slot, Room room) => this.SlotHelper<RoomSlotData>(this.DoesMeetUpgradeRequirements, slot, room);
-        public bool DoesMeetUpgradeRequirements(RoomSlotData slotData, Room room) => this.SlotHelper(this.DoesMeetUpgradeRequirements, slotData, room);
+        public bool DoesMeetUpgradeRequirements(RoomSlotData slotData) => this.SlotHelper(this.DoesMeetUpgradeRequirements, slotData);
         public bool DoesMeetUpgradeRequirements(Slot slot, Room room, RoomSlotData slotData) =>
             this.GetBuildUpgradeRequirements(slot, room, slotData)
                 .All(this.IsRequirementMet);
@@ -354,7 +348,7 @@ namespace Arknights.BaseSimulator.Data
         }
 
         public IEnumerable<BuildRequirement> GetBuildUpgradeRequirements(Slot slot, Room room) => this.SlotHelper<BuildRequirement, RoomSlotData>(this.GetBuildUpgradeRequirements, slot, room);
-        public IEnumerable<BuildRequirement> GetBuildUpgradeRequirements(RoomSlotData slotData, Room room) => this.SlotHelper(this.GetBuildUpgradeRequirements, slotData, room);
+        public IEnumerable<BuildRequirement> GetBuildUpgradeRequirements(RoomSlotData slotData) => this.SlotHelper(this.GetBuildUpgradeRequirements, slotData);
         public IEnumerable<BuildRequirement> GetBuildUpgradeRequirements(Slot slot, Room room, RoomSlotData slotData)
         {
             var roomCount = this.GetRoomCount(room.Id);
@@ -458,6 +452,40 @@ namespace Arknights.BaseSimulator.Data
             }
 
             return func(slot, slotData);
+        }
+        private IEnumerable<T> SlotHelper<T>(Func<Slot, Room, RoomSlotData, IEnumerable<T>> func, Slot slot, Room room)
+        {
+            if (!this.TryGetSlotData(slot, out SlotData slotData))
+            {
+                yield break;
+            }
+
+            if (!(slotData is RoomSlotData roomSlotData))
+            {
+                yield break;
+            }
+
+            foreach (var t in func(slot, room, roomSlotData))
+            {
+                yield return t;
+            }
+        }
+        private IEnumerable<T> SlotHelper<T>(Func<Slot, Room, RoomSlotData, IEnumerable<T>> func, RoomSlotData roomSlotData)
+        {
+            if (!this.TryGetSlot(roomSlotData.Id, out Slot slot))
+            {
+                yield break;
+            }
+
+            if (!this.TryGetRoom(roomSlotData.RoomType, out Room room))
+            {
+                yield break;
+            }
+
+            foreach (var t in func(slot, room, roomSlotData))
+            {
+                yield return t;
+            }
         }
 
         private IEnumerable<T> SlotHelper<T, SD>(Func<Slot, Room, SD, IEnumerable<T>> func, Slot slot, Room room) where SD : SlotData

@@ -2,9 +2,129 @@
 
 <div class="container-fluid d-flex flex-column" style="width: 80em; height: 20em;">
     <CascadingValue Value="@this.Game">
-        @{
+        @if (this.Game.TryGetRoom(this.Data, out Room room))
+        {
+            <div class="row h-100 position-relative">
+                <div class="col-6 divider-right">
+                    <div class="row modal-header">
+                        <div class="col-8">
+                            @room.Name
+                        </div>
+                        <div class="col-4 text-right">
+                            @this.Data.Level @Constants.ArrowRightSpan @(this.Data.Level + 1)
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            @{
+                                var entries = new List<(MarkupString header, MarkupString value)>();
+                                var phase = this.Game.LevelToPhase(this.Data.Level);
+                                var ars = " " + Constants.ArrowRightSpan.Value + " ";
+                                string helper<T>(List<T> list, int phase, Func<T, object> func) =>
+                                    func(list[phase]) + ars + func(list[phase + 1]);
 
+                                switch (room.Id)
+                                {
+                                    case RoomType.Control:
+                                        entries.Add(("Level Limit", this.Data.Level + ars + (this.Data.Level + 1)).ToMarkup());
+                                        entries.Add(("Power Consumed", helper(room.Phases, phase, p => -p.Electricity)).ToMarkup());
+                                        entries.Add(("Operators", helper(room.Phases, phase, p => p.MaxStationedNum)).ToMarkup());
+                                        break;
+                                    case RoomType.Power:
+                                        entries.Add(("Power", helper(room.Phases, phase, p => p.Electricity)).ToMarkup());
+                                        entries.Add(("Power Consumed", 0 + ars + 0).ToMarkup());
+                                        entries.Add(("Operators", helper(room.Phases, phase, p => p.MaxStationedNum)).ToMarkup());
+                                        break;
+                                    case RoomType.Manufacture:
+                                        entries.Add(("Capacity", helper(this.Game.BaseData.ManufactData.Phases, phase, p => p.OutputCapacity)).ToMarkup());
+                                        entries.Add(("Power Consumed", helper(room.Phases, phase, p => -p.Electricity)).ToMarkup());
+                                        entries.Add(("Operators", helper(room.Phases, phase, p => p.MaxStationedNum)).ToMarkup());
+                                        break;
+                                    case RoomType.Trading:
+                                        entries.Add(("Order Limit", helper(this.Game.BaseData.TradingData.Phases, phase, p => p.OrderLimit)).ToMarkup());
+                                        entries.Add(("Power Consumed", helper(room.Phases, phase, p => -p.Electricity)).ToMarkup());
+                                        entries.Add(("Operators", helper(room.Phases, phase, p => p.MaxStationedNum)).ToMarkup());
+                                        break;
+                                    case RoomType.Dormitory:
+                                        entries.Add(("Morale Restored/hr", helper(this.Game.BaseData.DormData.Phases, phase, p => this.Game.ManpowerToString(p.ManpowerRecover))).ToMarkup());
+                                        entries.Add(("Ambience Limit", helper(this.Game.BaseData.DormData.Phases, phase, p => p.DecorationLimit)).ToMarkup());
+                                        entries.Add(("Power Consumed", helper(room.Phases, phase, p => -p.Electricity)).ToMarkup());
+                                        entries.Add(("Operators", helper(room.Phases, phase, p => p.MaxStationedNum)).ToMarkup());
+                                        break;
+                                    case RoomType.Workshop:
+                                        entries.Add(("New Formulas", this.Game.GetWorkshopFormulas(this.Data.Level + 1, 1).Count()).ToMarkup());
+                                        entries.Add(("Power Consumed", helper(room.Phases, phase, p => -p.Electricity)).ToMarkup());
+                                        entries.Add(("Operators", helper(room.Phases, phase, p => p.MaxStationedNum)).ToMarkup());
+                                        break;
+                                    case RoomType.Hire:
+                                        entries.Add(("Contact Speed", helper(this.Game.BaseData.HireData.Phases, phase, p => p.ResSpeed / 100)).ToMarkup());
+                                        entries.Add(("Resource Consumed", helper(this.Game.BaseData.HireData.Phases, phase, p => $"{-p.EconomizeRate * 100}%")).ToMarkup());
+                                        entries.Add(("Power Consumed", helper(room.Phases, phase, p => -p.Electricity)).ToMarkup());
+                                        entries.Add(("Operators", helper(room.Phases, phase, p => p.MaxStationedNum)).ToMarkup());
+                                        break;
+                                    case RoomType.Training:
+                                        entries.Add(("Level Limit", helper(this.Game.BaseData.TrainingData.Phases, phase, p => p.SpecSkillLvlLimit)).ToMarkup());
+                                        entries.Add(("Power Consumed", helper(room.Phases, phase, p => -p.Electricity)).ToMarkup());
+                                        entries.Add(("Operators", helper(room.Phases, phase, p => p.MaxStationedNum)).ToMarkup());
+                                        break;
+                                    case RoomType.Meeting:
+                                        entries.Add(("Friend Slots", helper(this.Game.BaseData.MeetingData.Phases, phase, p => p.FriendSlotInc)).ToMarkup());
+                                        entries.Add(("Power Consumed", helper(room.Phases, phase, p => -p.Electricity)).ToMarkup());
+                                        entries.Add(("Operators", helper(room.Phases, phase, p => p.MaxStationedNum)).ToMarkup());
+                                        break;
+                                    default:
+                                        entries.Add(("error", "error").ToMarkup());
+                                        entries.Add(("error", "error").ToMarkup());
+                                        break;
+                                }
+
+                                <RoomInfoTable Entries="@entries" />
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <CascadingValue Value="@this.Game.GetRoomUpgradeCosts(this.Data)">
+                        <div class="row">
+                            <div class="col">
+                                Consume the following materials to upgrade the room?
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <RoomCostsTable EmptyText="No cost. Upgrade is free." />
+                            </div>
+                        </div>
+                    </CascadingValue>
+                </div>
+                @if (!this.Game.DoesMeetUpgradeRequirements(this.Data))
+                {
+                    var requirements = this.Game.GetBuildUpgradeRequirements(this.Data);
+                    var list = new List<(MarkupString header, IEnumerable<MarkupString> values)>()
+{
+                        ("Facility".ToMarkup(), requirements.Select(br => br.RoomType.ToString().ToMarkup())),
+                        ("Level".ToMarkup(), requirements.Select(br => br.Level.ToString().ToMarkup())),
+                        ("Count".ToMarkup(), requirements.Select(br => br.Count.ToString().ToMarkup())),
+                    };
+
+                    <div class="overlay text-center d-flex flex-column justify-content-center text-white">
+                        <RequirementsTable Entries="@list" IsDark="true" HeaderText="Requirements not met. Unable to upgrade." />
+                    </div>
+                }
+            </div>
         }
+        else
+        {
+            <div>Room not found</div>
+        }
+        <div class="row">
+            <div class="col btn btn-dark m-1" @onclick="Cancel">
+                ❌ Cancel
+            </div>
+            <div class="col btn btn-dark m-1" @onclick="Confirm">
+                ✔ Confirm
+            </div>
+        </div>
     </CascadingValue>
 </div>
 

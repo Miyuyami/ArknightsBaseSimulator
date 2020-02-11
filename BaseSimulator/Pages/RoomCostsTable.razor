@@ -1,5 +1,15 @@
 ﻿@{
+    if (this.Costs == null)
+    {
+        this.Costs = this.BuildCost.Items;
+    }
+
+    var hasDroneCost = this.BuildCost?.Labor > 0;
     var costsCount = this.Costs.Count();
+    if (hasDroneCost)
+    {
+        costsCount++;
+    }
     var colspan = Math.Max(costsCount, 1);
 
     <table class="table">
@@ -17,6 +27,11 @@
                     }
                     else
                     {
+                        if (hasDroneCost)
+                        {
+                            <RoomBuildCostEntry Name="@this.Game.GetLaborName()" AvailableCount="@this.Game.GetLaborCount()" NeededCount="@this.BuildCost.Labor" />
+                        }
+
                         foreach (var cost in this.Costs)
                         {
                             var itemCount = this.Game.GetItemCount(cost.ItemId);
@@ -33,6 +48,7 @@
 
 @code {
     [CascadingParameter] public Game Game { get; set; }
+    [CascadingParameter] public BuildCost BuildCost { get; set; }
     [CascadingParameter] public IEnumerable<Cost> Costs { get; set; }
     [Parameter] public string EmptyText { get; set; }
 }

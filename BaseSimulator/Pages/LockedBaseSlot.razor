@@ -35,7 +35,7 @@
                 Position = "blazored-modal-center",
                 HideCloseButton = true,
             };
-            this.ModalService.Show<UnlockBaseSlotModal>("", parameters, options);
+            this.ModalService.Show<UnlockBaseSlotModal>(parameters, options);
         }
 
         await this.OnClick.InvokeAsync(this.Data);
