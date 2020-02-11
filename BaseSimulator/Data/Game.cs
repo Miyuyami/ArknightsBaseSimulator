@@ -156,15 +156,25 @@ namespace Arknights.BaseSimulator.Data
 
         public IEnumerable<Room> GetPossibleBuildRooms(Slot slot) => this.SlotHelper(this.GetPossibleBuildRooms, slot);
         public IEnumerable<Room> GetPossibleBuildRooms(SlotData slotData) => this.SlotHelper(this.GetPossibleBuildRooms, slotData);
-        public IEnumerable<Room> GetPossibleBuildRooms(Slot slot, SlotData slotData) =>
-            this.BaseData.Rooms.Values.Where(r =>
+        public IEnumerable<Room> GetPossibleBuildRooms(Slot slot, SlotData slotData)
+        {
+            if (slot.Id == this.ControlSlot.Id)
+            {
+                return new List<Room> { this.BaseData.Rooms[RoomType.Control] };
+            }
+            else if (slot.Id == this.MeetingSlot.Id)
+            {
+                return new List<Room> { this.BaseData.Rooms[RoomType.Meeting] };
+            }
+
+            return this.BaseData.Rooms.Values.Where(r =>
                 slot.Category switch
                 {
                     RoomCategory.Elevator => r.Id == RoomType.Elevator,
                     RoomCategory.Corridor => r.Id == RoomType.Corridor,
-                    RoomCategory.Special => r.Id == RoomType.Control,
                     _ => r.Category == slot.Category,
                 });
+        }
 
         public bool TryUnlock(Slot slot) => this.SlotHelper<LockedSlotData>(this.TryUnlock, slot);
         public bool TryUnlock(LockedSlotData slotData) => this.SlotHelper(this.TryUnlock, slotData);
@@ -310,9 +320,24 @@ namespace Arknights.BaseSimulator.Data
             br.RoomType switch
             {
                 RoomTypeCondition.None => true,
-                RoomTypeCondition.Functional => this.GetRoomSlots().Where(r => r.Level >= br.Level).Count() >= br.Count,
+                RoomTypeCondition.Functional => this.GetRoomSlots().Where(this.IsFunctionalRoom).Where(r => r.Level >= br.Level).Count() >= br.Count,
                 _ => this.GetRoomSlots(br.RoomType.ToRoomType()).Where(r => r.Level >= br.Level).Count() >= br.Count,
             };
+
+        public bool IsFunctionalRoom(RoomSlotData roomSlotData) =>
+            roomSlotData.RoomType switch
+            {
+                RoomType.Trading => true,
+                RoomType.Manufacture => true,
+                RoomType.Power => true,
+                RoomType.Dormitory => true,
+                RoomType.Meeting => true,
+                RoomType.Hire => true,
+                RoomType.Workshop => true,
+                RoomType.Training => true,
+                _ => false,
+            };
+
 
         public bool DoesMeetBuildNewRequirements(Room room) =>
             this.GetBuildNewRequirements(room)
