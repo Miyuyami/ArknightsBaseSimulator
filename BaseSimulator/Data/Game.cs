@@ -262,8 +262,8 @@ namespace Arknights.BaseSimulator.Data
                 return false;
             }
 
-            // TODO:
-            throw new NotImplementedException();
+            slotData.Level++;
+            return true;
         }
 
         public bool IsUpgradeable(Slot slot, Room room) => this.SlotHelper(this.IsUpgradeable, slot, room);

@@ -38,7 +38,7 @@ else
 }
 
 @code {
-    private const string SaveQueryKey = "data";
+    private const string SaveKey = "data";
 
     private bool IsInBuildMode { get; set; }
 
@@ -56,7 +56,7 @@ else
 
         }
 
-        //await this.UpdateSaveAsync();
+        await this.UpdateSaveAsync();
     }
 
     private void OnBuildModeChanged(bool state)
@@ -67,7 +67,7 @@ else
     private async Task UpdateSaveAsync()
     {
         var saveData = this.GameService.Serialize(this.Game);
-        await this.LocalStorage.SetItemAsync(SaveQueryKey, saveData);
+        await this.LocalStorage.SetItemAsync(SaveKey, saveData);
     }
 
     private void OnModalClose(ModalResult result)
@@ -89,13 +89,13 @@ else
     {
         if (firstRender)
         {
-            var saveData = await this.LocalStorage.GetItemAsync<string>(SaveQueryKey);
+            var saveData = await this.LocalStorage.GetItemAsync<string>(SaveKey);
 
             this.Game = this.GameService.CreateGame(saveData);
 
             this.StateHasChanged();
         }
-        
+
         await this.UpdateSaveAsync();
     }
 }

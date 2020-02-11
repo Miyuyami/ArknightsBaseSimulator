@@ -30,12 +30,6 @@
 
     private bool CanBuild => this.Game.CanBuildAny(this.Data);
 
-    private Slot GetSlot()
-    {
-        this.Game.TryGetSlot(this.Data, out Slot slot);
-        return slot;
-    }
-
     private async Task InternalOnClick(MouseEventArgs e)
     {
         if (this.IsInBuildMode)
