@@ -148,6 +148,7 @@ namespace Arknights.BaseSimulator.Data
         public int GetLaborCount() =>
             this.GetItemCount("base_ap");
         public int GetMaxLabor() =>
+            this.BaseData.InitMaxLabor + 
             this.SaveData.Slots.Values.Where(sd => this.IsUnlocked(sd))
                                       .Select(sd => this.GetSlot(sd.Id))
                                       .Select(s => s.ProvideLabor)
