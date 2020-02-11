@@ -78,6 +78,12 @@ namespace Arknights.BaseSimulator.Data
                                       .Where(r => r.RoomType == roomType)
                                       .Count();
 
+        public int GetRoomCount(RoomCategory roomCategory) =>
+            this.SaveData.Slots.Values.OfType<RoomSlotData>()
+                                      .Select(r => this.GetRoom(r.RoomType))
+                                      .Where(r => r.Category == roomCategory)
+                                      .Count();
+
         public int GetItemCount(string itemId)
         {
             if (this.SaveData.Items.TryGetValue(itemId, out ItemData itemData))
@@ -99,15 +105,10 @@ namespace Arknights.BaseSimulator.Data
                 _ => throw new KeyNotFoundException(),
             };
 
-        public IEnumerable<Cost> GetCleanCosts(Slot slot)
-        {
-            var room = this.GetPossibleBuildRooms(slot)
-                           .First();
-
-            return this.BaseLayout.CleanCostTypes[slot.CleanCostId]
-                                  .Number[this.GetRoomCount(room.Id)]
-                                  .Items;
-        }
+        public IEnumerable<Cost> GetCleanCosts(Slot slot) =>
+            this.BaseLayout.CleanCostTypes[slot.CleanCostId]
+                           .Number[this.GetRoomCount(slot.Category)]
+                           .Items;
 
         public BuildCost GetNewRoomBuildCost(Room room) => this.GetRoomBuildCost(room, 1);
 
@@ -154,9 +155,9 @@ namespace Arknights.BaseSimulator.Data
         public bool IsUnlocked(SlotData slotData) =>
             !(slotData is LockedSlotData);
 
-        public IEnumerable<Room> GetPossibleBuildRooms(Slot slot) => this.SlotHelper(this.GetPossibleBuildRooms, slot);
-        public IEnumerable<Room> GetPossibleBuildRooms(SlotData slotData) => this.SlotHelper(this.GetPossibleBuildRooms, slotData);
-        public IEnumerable<Room> GetPossibleBuildRooms(Slot slot, SlotData slotData)
+        public IEnumerable<Room> GetPossibleBuildRooms(Slot slot) => this.SlotHelper<Room, EmptySlotData>(this.GetPossibleBuildRooms, slot);
+        public IEnumerable<Room> GetPossibleBuildRooms(EmptySlotData slotData) => this.SlotHelper(this.GetPossibleBuildRooms, slotData);
+        public IEnumerable<Room> GetPossibleBuildRooms(Slot slot, EmptySlotData slotData)
         {
             if (slot.Id == this.ControlSlot.Id)
             {
@@ -167,13 +168,8 @@ namespace Arknights.BaseSimulator.Data
                 return new List<Room> { this.BaseData.Rooms[RoomType.Meeting] };
             }
 
-            return this.BaseData.Rooms.Values.Where(r =>
-                slot.Category switch
-                {
-                    RoomCategory.Elevator => r.Id == RoomType.Elevator,
-                    RoomCategory.Corridor => r.Id == RoomType.Corridor,
-                    _ => r.Category == slot.Category,
-                });
+            return this.BaseData.Rooms.Values.Where(r => r.Category == slot.Category)
+                                             .Where(r => this.CanBuild(slot, r, slotData));
         }
 
         public bool TryUnlock(Slot slot) => this.SlotHelper<LockedSlotData>(this.TryUnlock, slot);
@@ -356,7 +352,7 @@ namespace Arknights.BaseSimulator.Data
             return true;
         }
 
-        public IEnumerable<BuildRequirement> GetUnlockRequirements(Slot slot) => this.SlotHelper(this.GetUnlockRequirements, slot);
+        public IEnumerable<BuildRequirement> GetUnlockRequirements(Slot slot) => this.SlotHelper<BuildRequirement, SlotData>(this.GetUnlockRequirements, slot);
         public IEnumerable<BuildRequirement> GetUnlockRequirements(SlotData slotData) => this.SlotHelper(this.GetUnlockRequirements, slotData);
         public IEnumerable<BuildRequirement> GetUnlockRequirements(Slot slot, SlotData slotData)
         {
@@ -543,19 +539,24 @@ namespace Arknights.BaseSimulator.Data
             }
         }
 
-        private IEnumerable<T> SlotHelper<T>(Func<Slot, SlotData, IEnumerable<T>> func, Slot slot)
+        private IEnumerable<T> SlotHelper<T, SD>(Func<Slot, SD, IEnumerable<T>> func, Slot slot) where SD : SlotData
         {
             if (!this.TryGetSlotData(slot, out SlotData slotData))
             {
                 yield break;
             }
 
-            foreach (var t in func(slot, slotData))
+            if (!(slotData is SD sd))
+            {
+                yield break;
+            }
+
+            foreach (var t in func(slot, sd))
             {
                 yield return t;
             }
         }
-        private IEnumerable<T> SlotHelper<T>(Func<Slot, SlotData, IEnumerable<T>> func, SlotData slotData)
+        private IEnumerable<T> SlotHelper<T, SD>(Func<Slot, SD, IEnumerable<T>> func, SD slotData) where SD : SlotData
         {
             if (!this.TryGetSlot(slotData, out Slot slot))
             {
