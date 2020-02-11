@@ -10,32 +10,30 @@
         string topPixels = $"{Game.OneSlotUnitSize * Math.Abs(slot.Offset.Row + slot.Size.Row - this.Game.MaxLayoutHeight)}px";
 
         <div class="slot p-1 position-absolute @widthClass @heightClass" style="left: @leftPixels; top: @topPixels">
-            <div class="w-100 h-100">
-                @if (this.Data is LockedSlotData lockedSlotData)
-                {
-                    <CascadingValue Value="@lockedSlotData">
-                        <LockedBaseSlot OnClick="@this.OnClick" />
-                    </CascadingValue>
-                }
-                else if (this.Data is EmptySlotData emptySlotData)
-                {
-                    <CascadingValue Value="@emptySlotData">
-                        <EmptyBaseSlot OnClick="@this.OnClick" />
-                    </CascadingValue>
-                }
-                else if (this.Data is RoomSlotData roomSlotData)
-                {
-                    <CascadingValue Value="@roomSlotData">
-                        <RoomBaseSlot OnClick="@this.OnClick" />
-                    </CascadingValue>
-                }
-                else
-                {
-                    <div>
-                        Unknown slot
-                    </div>
-                }
-            </div>
+            @if (this.Data is LockedSlotData lockedSlotData)
+            {
+                <CascadingValue Value="@lockedSlotData">
+                    <LockedBaseSlot OnClick="@this.OnClick" />
+                </CascadingValue>
+            }
+            else if (this.Data is EmptySlotData emptySlotData)
+            {
+                <CascadingValue Value="@emptySlotData">
+                    <EmptyBaseSlot OnClick="@this.OnClick" />
+                </CascadingValue>
+            }
+            else if (this.Data is RoomSlotData roomSlotData)
+            {
+                <CascadingValue Value="@roomSlotData">
+                    <RoomBaseSlot OnClick="@this.OnClick" />
+                </CascadingValue>
+            }
+            else
+            {
+                <div>
+                    Unknown slot
+                </div>
+            }
         </div>
     }
     else

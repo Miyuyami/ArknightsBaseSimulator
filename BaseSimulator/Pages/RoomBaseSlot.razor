@@ -2,16 +2,34 @@
 
 @inject IModalService ModalService
 
-@{
-    <div class="row m-0 btn btn-info w-100 h-100 d-flex align-items-center justify-content-center" @onclick="@this.InternalOnClick">
-        <div class="col-8 p-0">
-            @this.GetRoomTypeAsString()
-        </div>
-        <div class="col-4 p-0">
-            Lv.@this.Data.Level
-        </div>
+<div class="btn btn-info w-100 h-100 d-flex flex-column align-items-center justify-content-center" @onclick="@this.InternalOnClick">
+    <div class="row">
+        @if (this.Game.IsFunctionalRoom(this.Data))
+        {
+            <div class="col-8">
+                @this.GetRoomTypeAsString()
+            </div>
+            <div class="col-4">
+                Lv.@this.Data.Level
+            </div>
+        }
+        else
+        {
+            <div class="col">
+                @this.GetRoomTypeAsString()
+            </div>
+        }
     </div>
-}
+    @if (this.IsInBuildMode &&
+         this.CanUpgrade)
+    {
+        <div class="row">
+            <div class="col">
+                (upgradeable)
+            </div>
+        </div>
+    }
+</div>
 
 @code {
     [CascadingParameter] public RoomSlotData Data { get; set; }

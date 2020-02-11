@@ -2,26 +2,32 @@
 
 @inject IModalService ModalService
 
-@{
-    <div class="btn btn-dark h-100 w-100 d-flex align-items-center justify-content-center" @onclick="this.InternalOnClick">
-        @{
-            if (this.IsInBuildMode &&
-                this.CanBuild)
-            {
-                <div>🧱 (cleanable)</div>
-            }
-            else
-            {
-                <div>🧱</div>
-            }
+<div class="btn btn-dark w-100 h-100 d-flex flex-column align-items-center justify-content-center" @onclick="@this.InternalOnClick">
+    <div class="row">
+        @if (this.Game.TryGetSlot(this.Data, out Slot slot))
+        {
+            <div class="col">🧱</div>
+        }
+        else
+        {
+            <div class="col">SLOT NOT FOUND</div>
         }
     </div>
-}
+    @if (this.IsInBuildMode &&
+         this.CanUnlock)
+    {
+        <div class="row">
+            <div class="col">
+                (cleanable)
+            </div>
+        </div>
+    }
+</div>
 
 @code {
     [CascadingParameter] public LockedSlotData Data { get; set; }
 
-    private bool CanBuild => this.Game.CanUnlock(this.Data);
+    private bool CanUnlock => this.Game.CanUnlock(this.Data);
 
     private async Task InternalOnClick(MouseEventArgs e)
     {
