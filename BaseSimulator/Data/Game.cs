@@ -268,7 +268,7 @@ namespace Arknights.BaseSimulator.Data
                 return false;
             }
 
-            slotData.Level++;
+            this.SaveData.Slots[slotData.Id] = new RoomSlotData(slot.Id, room.Id, slotData.Level + 1);
             return true;
         }
 
