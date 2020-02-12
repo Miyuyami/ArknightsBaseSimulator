@@ -85,3 +85,15 @@
     right: 0;
     z-index: 10;
 }
+
+.color-labor {
+    background-color: mediumpurple;
+}
+
+.color-power {
+    background-color: yellowgreen;
+}
+
+.color-gold {
+    background-color: royalblue;
+}
