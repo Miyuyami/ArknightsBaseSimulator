@@ -1,7 +1,6 @@
 ﻿using System;
-using Arknights.Data;
 
-namespace Arknights.BaseSimulator
+namespace Arknights.Data
 {
     public static class Helpers
     {

@@ -22,7 +22,7 @@ namespace Arknights.BaseSimulator
             var host = builder.Build();
 
             var gameService = host.Services.GetRequiredService<GameService>();
-            await gameService.InitAsync("data/building_data.json");
+            await gameService.InitAsync("data/building_data.json", "data/item_table.json");
 
             await host.RunAsync();
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
@@ -474,7 +473,7 @@ namespace Arknights.Data
         [EnumMember(Value = "FUNCTION")] Function,
         [EnumMember(Value = "OUTPUT")] Output,
         [EnumMember(Value = "RECOVERY")] Recovery,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum BuffColor
@@ -488,7 +487,7 @@ namespace Arknights.Data
         [EnumMember(Value = "#dd653f")] HexDD653F,
         [EnumMember(Value = "#e3eb00")] HexE3EB00,
         [EnumMember(Value = "#ffd800")] HexFFD800,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum BuffIcon
@@ -502,7 +501,7 @@ namespace Arknights.Data
         [EnumMember(Value = "trading")] Trading,
         [EnumMember(Value = "training")] Training,
         [EnumMember(Value = "workshop")] Workshop,
-    };
+    }
 
     public enum RoomTypeCondition
     {
@@ -536,20 +535,20 @@ namespace Arknights.Data
         [EnumMember(Value = "MEETING")] Meeting,
         [EnumMember(Value = "ELEVATOR")] Elevator,
         [EnumMember(Value = "CORRIDOR")] Corridor,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum TextColor
     {
         [EnumMember(Value = "#333333")] Hex333333,
         [EnumMember(Value = "#ffffff")] HexFFFFFF,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum DefaultPrefabId
     {
         [EnumMember(Value = "room_dormitory_6x2")] RoomDormitory6X2,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum FurnitureCategory
@@ -557,7 +556,7 @@ namespace Arknights.Data
         [EnumMember(Value = "FLOOR")] Floor,
         [EnumMember(Value = "FURNITURE")] Furniture,
         [EnumMember(Value = "WALL")] Wall,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum Location
@@ -568,7 +567,7 @@ namespace Arknights.Data
         [EnumMember(Value = "NONE")] None,
         [EnumMember(Value = "POSTER")] Poster,
         [EnumMember(Value = "WALL")] Wall,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum FurnitureType
@@ -585,14 +584,14 @@ namespace Arknights.Data
         [EnumMember(Value = "WALLDECO")] Walldeco,
         [EnumMember(Value = "WALLLAMP")] Walllamp,
         [EnumMember(Value = "WALLPAPER")] Wallpaper,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum CostType
     {
         [EnumMember(Value = "GOLD")] Gold,
         [EnumMember(Value = "MATERIAL")] Material,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum RoomCategory
@@ -603,7 +602,7 @@ namespace Arknights.Data
         [EnumMember(Value = "FUNCTION")] Function,
         [EnumMember(Value = "OUTPUT")] Output,
         [EnumMember(Value = "SPECIAL")] Special,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum StoreyId
@@ -614,7 +613,7 @@ namespace Arknights.Data
         [EnumMember(Value = "B2")] B2,
         [EnumMember(Value = "B3")] B3,
         [EnumMember(Value = "B4")] B4,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum BuffType
@@ -623,7 +622,7 @@ namespace Arknights.Data
         [EnumMember(Value = "W_BUILDING")] WBuilding,
         [EnumMember(Value = "W_EVOLVE")] WEvolve,
         [EnumMember(Value = "W_SKILL")] WSkill,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum FormulaType
@@ -632,14 +631,14 @@ namespace Arknights.Data
         [EnumMember(Value = "F_BUILDING")] FBuilding,
         [EnumMember(Value = "F_EVOLVE")] FEvolve,
         [EnumMember(Value = "F_SKILL")] FSkill,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum StoreyType
     {
         [EnumMember(Value = "UPGROUND")] UPGROUND,
         [EnumMember(Value = "DOWNGROUND")] DOWNGROUND,
-    };
+    }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum LayoutVersion
@@ -649,17 +648,17 @@ namespace Arknights.Data
 
     public partial class BaseData
     {
-        public static BaseData FromJson(string json) => JsonConvert.DeserializeObject<BaseData>(json, Converter.Settings);
+        public static BaseData FromJson(string json) => JsonConvert.DeserializeObject<BaseData>(json, Converter.BaseSettings);
     }
 
-    public static class Serialize
+    public static partial class Serialize
     {
-        public static string ToJson(this BaseData self) => JsonConvert.SerializeObject(self, Converter.Settings);
+        public static string ToJson(this BaseData self) => JsonConvert.SerializeObject(self, Converter.BaseSettings);
     }
 
-    internal static class Converter
+    internal static partial class Converter
     {
-        public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+        public static readonly JsonSerializerSettings BaseSettings = new JsonSerializerSettings
         {
             MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
             DateParseHandling = DateParseHandling.None,
@@ -668,36 +667,5 @@ namespace Arknights.Data
                 new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
             },
         };
-    }
-
-    internal class ParseStringConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(int) || t == typeof(int?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-            var value = serializer.Deserialize<string>(reader);
-            if (Int32.TryParse(value, out int l))
-            {
-                return l;
-            }
-            throw new Exception("Cannot unmarshal type int");
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (int)untypedValue;
-            serializer.Serialize(writer, value.ToString());
-            return;
-        }
-
-        public static readonly ParseStringConverter Singleton = new ParseStringConverter();
     }
 }
