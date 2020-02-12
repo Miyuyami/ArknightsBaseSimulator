@@ -4,7 +4,14 @@
 
 <div class="btn btn-info w-100 h-100 d-flex flex-column align-items-center justify-content-center" @onclick="@this.InternalOnClick">
     <div class="row">
-        @if (this.Game.IsFunctionalRoom(this.Data))
+        @if (this.Data.RoomType == RoomType.Elevator ||
+             this.Data.RoomType == RoomType.Corridor)
+        {
+            <div class="col">
+                @this.GetRoomTypeAsString()
+            </div>
+        }
+        else
         {
             <div class="col-8">
                 @this.GetRoomTypeAsString()
@@ -13,15 +20,9 @@
                 Lv.@this.Data.Level
             </div>
         }
-        else
-        {
-            <div class="col">
-                @this.GetRoomTypeAsString()
-            </div>
-        }
     </div>
     @if (this.IsInBuildMode &&
-         this.CanUpgrade)
+        this.CanUpgrade)
     {
         <div class="row">
             <div class="col">
