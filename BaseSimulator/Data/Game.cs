@@ -176,8 +176,7 @@ namespace Arknights.BaseSimulator.Data
                 return new List<Room> { this.BaseData.Rooms[RoomType.Meeting] };
             }
 
-            return this.BaseData.Rooms.Values.Where(r => r.Category == slot.Category)
-                                             .Where(r => this.CanBuild(slot, r, slotData));
+            return this.BaseData.Rooms.Values.Where(r => r.Category == slot.Category);
         }
 
         public bool TryUnlock(Slot slot) => this.SlotHelper<LockedSlotData>(this.TryUnlock, slot);
