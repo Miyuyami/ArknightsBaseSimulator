@@ -12,17 +12,20 @@
 }
 else
 {
-    <div class="mt-5 position-relative">
-        <div class="base-menu position-fixed">
-            <BaseMenu @ref="@this.BaseMenu" OnBuildModeChanged="@this.OnBuildModeChanged" />
-        </div>
-        <div class="base">
-            @{
-                var maxLayoutHeight = this.Game.MaxLayoutHeight;
+    <CascadingValue Value="@this.Game">
+        <div class="mt-5 position-relative">
+            <div class="base-menu position-fixed">
+                <BaseMenu OnBuildModeChanged="@this.OnBuildModeChanged" />
+            </div>
+            <div class="base-resource-display position-fixed">
+                <BaseResourceDisplay />
+            </div>
+            <div class="base">
+                @{
+                    var maxLayoutHeight = this.Game.MaxLayoutHeight;
 
-                foreach (var slot in this.Game.SaveData.Slots)
-                {
-                    <CascadingValue Value="@this.Game">
+                    foreach (var slot in this.Game.SaveData.Slots)
+                    {
                         <CascadingValue Value="@this.IsInBuildMode">
                             <CascadingValue Value="@slot.Key">
                                 <CascadingValue Value="@slot.Value">
@@ -30,11 +33,11 @@ else
                                 </CascadingValue>
                             </CascadingValue>
                         </CascadingValue>
-                    </CascadingValue>
+                    }
                 }
-            }
+            </div>
         </div>
-    </div>
+    </CascadingValue>
 }
 
 @code {
@@ -43,7 +46,6 @@ else
     private bool IsInBuildMode { get; set; }
 
     private Game Game;
-    private BaseMenu BaseMenu;
 
     private async Task OnClickSlot(SlotData slotData)
     {

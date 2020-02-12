@@ -84,6 +84,11 @@ namespace Arknights.BaseSimulator.Data
         }
     }
 
+    public class ManufactureItemData
+    {
+
+    }
+
     internal static class Converter
     {
         public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings

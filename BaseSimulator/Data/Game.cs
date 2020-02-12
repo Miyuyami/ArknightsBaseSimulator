@@ -75,6 +75,16 @@ namespace Arknights.BaseSimulator.Data
             return true;
         }
 
+        public int GetUsedPower() =>
+            this.GetRoomSlots()
+                .Sum(rd => this.GetRoom(rd.RoomType).Phases[this.LevelToPhase(rd.Level)].Electricity);
+
+        public int GetMaxPower() =>
+            this.GetRoomSlots()
+                .Select(rd => this.GetRoom(rd.RoomType).Phases[this.LevelToPhase(rd.Level)].Electricity)
+                .Where(e => e > 0)
+                .Sum();
+
         public int GetRoomCount(RoomType roomType) =>
             this.SaveData.Slots.Values.OfType<RoomSlotData>()
                                       .Where(r => r.RoomType == roomType)
