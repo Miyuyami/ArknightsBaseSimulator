@@ -29,6 +29,23 @@ namespace Arknights.BaseSimulator.Data
 
             this.BaseApItemData = this.GetItemData(this.BaseApItem);
             this.GoldItemData = this.GetItemData(this.GoldItem);
+
+            this.Debug_SetDefaultItems();
+        }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        private void Debug_SetDefaultItems()
+        {
+            void helper(string itemId, long count)
+            {
+                this.AddItem(itemId, 0);
+                this.GetItemData(itemId).Count = count;
+            }
+
+            helper("3131", 10);
+            helper("3132", 10);
+            helper("3133", 10);
+            helper("3105", 5);
         }
 
         private ItemData GetItemData(Item item) => this.GetItemData(item.ItemId);
@@ -69,9 +86,25 @@ namespace Arknights.BaseSimulator.Data
             }
         }
 
-        public ItemData RemoveItem(Item item, long count) => this.RemoveItem(item.ItemId, count);
-        public ItemData RemoveItem(string itemId, long count) =>
+        private ItemData RemoveItem(Item item, long count) => this.RemoveItem(item.ItemId, count);
+        private ItemData RemoveItem(string itemId, long count) =>
             this.AddItem(itemId, -count);
+        public bool TryRemoveItem(Item item, long count) => this.TryRemoveItem(item.ItemId, count);
+        public bool TryRemoveItem(string itemId, long count)
+        {
+            if (!this.TryGetItemData(itemId, out ItemData itemData))
+            {
+                return false;
+            }
+
+            if (itemData.Count < count)
+            {
+                return false;
+            }
+
+            this.RemoveItem(itemId, count);
+            return true;
+        }
 
         private long Bound(long count) => Math.Max(count, 0);
 

@@ -136,6 +136,24 @@ namespace Arknights.BaseSimulator.Data
             return room.Phases[phaseIdx].BuildCost;
         }
 
+        public bool CanConsumeCosts(BuildCost buildCost) =>
+            this.ItemStorage.BaseApItemData.Count >= buildCost.Labor &&
+            this.CanConsumeCosts(buildCost.Items);
+
+        public bool CanConsumeCosts(IEnumerable<Cost> costs) =>
+            costs.All(c => this.ItemStorage.TryGetItemData(c.ItemId, out ItemData itemData) &&
+                           itemData.Count >= c.Count);
+
+        public bool TryConsumeCosts(BuildCost buildCost) =>
+            this.CanConsumeCosts(buildCost) &&
+            this.ItemStorage.TryRemoveItem(this.ItemStorage.BaseApItem, buildCost.Labor) &&
+            buildCost.Items.All(c => this.ItemStorage.TryRemoveItem(c.ItemId, c.Count));
+
+        public bool TryConsumeCosts(IEnumerable<Cost> costs) =>
+            this.CanConsumeCosts(costs) &&
+            costs.All(c => this.ItemStorage.TryRemoveItem(c.ItemId, c.Count));
+
+
         public int GetMaxLabor() =>
             this.BaseData.InitMaxLabor +
             this.SaveData.Slots.Values.Where(sd => this.IsUnlocked(sd))
@@ -171,6 +189,11 @@ namespace Arknights.BaseSimulator.Data
                 return false;
             }
 
+            if (!this.TryConsumeCosts(this.GetCleanCosts(slot)))
+            {
+                return false;
+            }
+
             var emptySlotData = new EmptySlotData(slot.Id);
             this.SaveData.Slots[slot.Id] = emptySlotData;
 
@@ -178,6 +201,8 @@ namespace Arknights.BaseSimulator.Data
             {
                 this.SaveData.Slots[slot.Id] = roomSlotData;
             }
+
+            this.ItemStorage.AddItem(this.ItemStorage.BaseApItem, slot.ProvideLabor);
 
             return true;
         }
@@ -226,6 +251,11 @@ namespace Arknights.BaseSimulator.Data
                 return false;
             }
 
+            if (!this.TryConsumeCosts(this.GetNewRoomBuildCost(room)))
+            {
+                return false;
+            }
+
             this.SaveData.Slots[slotData.Id] = new RoomSlotData(slot.Id, room.Id, 1);
             return true;
         }
@@ -254,6 +284,11 @@ namespace Arknights.BaseSimulator.Data
         private bool TryUpgrade(Slot slot, Room room, RoomSlotData slotData)
         {
             if (!this.CanUpgrade(slot, room, slotData))
+            {
+                return false;
+            }
+
+            if (!this.TryConsumeCosts(this.GetRoomUpgradeCosts(slotData)))
             {
                 return false;
             }
