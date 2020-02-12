@@ -10,10 +10,11 @@
                     var entries = new List<(MarkupString header, MarkupString value)>();
                     var ars = Constants.ArrowRightSpan.Value;
 
-                    var labor = this.Game.GetLaborCount();
+                    var laborItem = this.Game.ItemStorage.BaseApItem;
+                    var laborItemData = this.Game.ItemStorage.BaseApItemData;
                     var maxLabor = this.Game.GetMaxLabor();
 
-                    entries.Add((this.Game.GetLaborName(), $"{labor}/{maxLabor} {ars} {labor + slot.ProvideLabor}/{maxLabor + slot.ProvideLabor}").ToMarkup());
+                    entries.Add((laborItem.Name, $"{laborItemData.Count}/{maxLabor} {ars} {laborItemData.Count + slot.ProvideLabor}/{maxLabor + slot.ProvideLabor}").ToMarkup());
                     <div class="row h-100">
                         <div class="col-6 divider-right">
                             <div class="row">

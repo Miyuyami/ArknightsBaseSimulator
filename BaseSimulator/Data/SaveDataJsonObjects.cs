@@ -10,14 +10,13 @@ using Newtonsoft.Json.Linq;
 
 using J = Newtonsoft.Json.JsonPropertyAttribute;
 using R = Newtonsoft.Json.Required;
-using N = Newtonsoft.Json.NullValueHandling;
 
 namespace Arknights.BaseSimulator.Data
 {
     public partial class SaveData
     {
-        [J("slots", Required = R.Always)] public Dictionary<string, SlotData> Slots { get; set; }
-        [J("items", Required = R.Always)] public Dictionary<string, ItemData> Items { get; set; }
+        [J("slots", Required = R.Always)] public Dictionary<string, SlotData> Slots { get; private set; }
+        [J("items", Required = R.Always)] public Dictionary<string, ItemData> Items { get; private set; }
 
         public SaveData()
         {
@@ -28,7 +27,7 @@ namespace Arknights.BaseSimulator.Data
 
     public abstract class SlotData
     {
-        [J("id")] public string Id { get; set; }
+        [J("id")] public string Id { get; private set; }
 
         [JsonConstructor]
         protected SlotData() { }
@@ -57,7 +56,7 @@ namespace Arknights.BaseSimulator.Data
 
     public class RoomSlotData : SlotData
     {
-        [J("roomType")] public RoomType RoomType { get; set; }
+        [J("roomType")] public RoomType RoomType { get; private set; }
         [J("level")] public int Level { get; set; }
 
         [JsonConstructor]
@@ -72,8 +71,17 @@ namespace Arknights.BaseSimulator.Data
 
     public class ItemData
     {
-        [J("id")] public string Id { get; set; }
-        [J("count")] public int Count { get; set; }
+        [J("id")] public string Id { get; private set; }
+        [J("count")] public long Count { get; set; }
+
+        [JsonConstructor]
+        public ItemData() : base() { }
+
+        public ItemData(string id, long count)
+        {
+            this.Id = id;
+            this.Count = count;
+        }
     }
 
     internal static class Converter

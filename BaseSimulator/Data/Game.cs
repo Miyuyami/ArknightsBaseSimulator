@@ -11,6 +11,7 @@ namespace Arknights.BaseSimulator.Data
 
         public SaveData SaveData { get; }
         public BaseData BaseData { get; }
+        public ItemStorage ItemStorage { get; }
 
         public long MaxLayoutHeight { get; }
         public Layout BaseLayout => this.BaseData.Layouts[LayoutVersion.V0];
@@ -20,10 +21,11 @@ namespace Arknights.BaseSimulator.Data
         private Slot MeetingSlot => this.BaseLayout.Slots[this.BaseData.MeetingSlotId];
         private SlotData MeetingSlotData => this.SaveData.Slots[this.BaseData.MeetingSlotId];
 
-        public Game(SaveData saveData, BaseData baseData)
+        public Game(SaveData saveData, BaseData baseData, ItemTable itemTable)
         {
             this.SaveData = saveData;
             this.BaseData = baseData;
+            this.ItemStorage = new ItemStorage(this.SaveData, itemTable);
 
             var slotsNotPresent = this.BaseLayout.Slots.Keys.Where(x => !this.SaveData.Slots.ContainsKey(x));
             foreach (var s in slotsNotPresent)
@@ -84,27 +86,6 @@ namespace Arknights.BaseSimulator.Data
                                       .Where(r => r.Category == roomCategory)
                                       .Count();
 
-        public int GetItemCount(string itemId)
-        {
-            if (this.SaveData.Items.TryGetValue(itemId, out ItemData itemData))
-            {
-                return itemData.Count;
-            }
-
-            return 0;
-        }
-
-        public string GetItemName(string id) =>
-            id switch
-            {
-                "3105" => "Mat S",
-                "3131" => "Mat 1",
-                "3132" => "Mat 2",
-                "3133" => "Mat 3",
-                "base_ap" => "Drone",
-                _ => throw new KeyNotFoundException(),
-            };
-
         public IEnumerable<Cost> GetCleanCosts(Slot slot) =>
             this.BaseLayout.CleanCostTypes[slot.CleanCostId]
                            .Number[this.GetRoomCount(slot.Category)]
@@ -143,12 +124,8 @@ namespace Arknights.BaseSimulator.Data
             return room.Phases[phaseIdx].BuildCost;
         }
 
-        public string GetLaborName() =>
-            this.GetItemName("base_ap");
-        public int GetLaborCount() =>
-            this.GetItemCount("base_ap");
         public int GetMaxLabor() =>
-            this.BaseData.InitMaxLabor + 
+            this.BaseData.InitMaxLabor +
             this.SaveData.Slots.Values.Where(sd => this.IsUnlocked(sd))
                                       .Select(sd => this.GetSlot(sd.Id))
                                       .Select(s => s.ProvideLabor)

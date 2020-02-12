@@ -8,6 +8,7 @@ namespace Arknights.BaseSimulator.Data
     public class GameService
     {
         public BaseData BaseData { get; private set; }
+        public ItemTable ItemTable { get; private set; }
         private HttpClient HttpClient { get; }
 
         public GameService(HttpClient httpClient)
@@ -15,18 +16,20 @@ namespace Arknights.BaseSimulator.Data
             this.HttpClient = httpClient;
         }
 
-        public async Task InitAsync(string url)
+        public async Task InitAsync(string baseDataUrl, string itemTableUrl)
         {
-            string jsonString = await this.HttpClient.GetStringAsync(url);
+            string baseDataJsonString = await this.HttpClient.GetStringAsync(baseDataUrl);
+            this.BaseData = BaseData.FromJson(baseDataJsonString);
 
-            this.BaseData = BaseData.FromJson(jsonString);
+            string itemTableJsonString = await this.HttpClient.GetStringAsync(itemTableUrl);
+            this.ItemTable = ItemTable.FromJson(itemTableJsonString);
         }
 
         public Game CreateGame(string value = null)
         {
             if (String.IsNullOrWhiteSpace(value))
             {
-                return new Game(new SaveData(), this.BaseData);
+                return new Game(new SaveData(), this.BaseData, this.ItemTable);
             }
 
             return this.Deserialize(value);
@@ -34,10 +37,9 @@ namespace Arknights.BaseSimulator.Data
 
         public Game Deserialize(string value)
         {
-            //var json = Encoding.UTF8.GetString(Convert.FromBase64String(value));
             var json = value;
 
-            return new Game(SaveData.FromJson(json), this.BaseData);
+            return new Game(SaveData.FromJson(json), this.BaseData, this.ItemTable);
         }
 
         public string Serialize(Game game)
@@ -45,7 +47,6 @@ namespace Arknights.BaseSimulator.Data
             var json = Data.Serialize.ToJson(game.SaveData);
 
             return json;
-            //return Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
         }
     }
 }

@@ -29,15 +29,23 @@
                     {
                         if (hasDroneCost)
                         {
-                            <RoomBuildCostEntry Name="@this.Game.GetLaborName()" AvailableCount="@this.Game.GetLaborCount()" NeededCount="@this.BuildCost.Labor" />
+                            var laborItem = this.Game.ItemStorage.BaseApItem;
+                            var laborItemData = this.Game.ItemStorage.BaseApItemData;
+
+                            <RoomBuildCostEntry Name="@laborItem.Name" AvailableCount="@laborItemData.Count" NeededCount="@this.BuildCost.Labor" />
                         }
 
                         foreach (var cost in this.Costs)
                         {
-                            var itemCount = this.Game.GetItemCount(cost.ItemId);
-                            var itemName = this.Game.GetItemName(cost.ItemId);
-
-                            <RoomBuildCostEntry Name="@itemName" AvailableCount="@itemCount" NeededCount="cost.Count" />
+                            if (this.Game.ItemStorage.TryGetItem(cost.ItemId, out Item item) &&
+                                this.Game.ItemStorage.TryGetItemData(cost.ItemId, out ItemData itemData))
+                            {
+                                <RoomBuildCostEntry Name="@item.Name" AvailableCount="@itemData.Count" NeededCount="cost.Count" />
+                            }
+                            else
+                            {
+                                throw new Exception("item not found");
+                            }
                         }
                     }
                 }
