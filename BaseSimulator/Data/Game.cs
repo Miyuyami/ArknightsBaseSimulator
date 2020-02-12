@@ -76,8 +76,10 @@ namespace Arknights.BaseSimulator.Data
         }
 
         public int GetUsedPower() =>
-            this.GetRoomSlots()
-                .Sum(rd => this.GetRoom(rd.RoomType).Phases[this.LevelToPhase(rd.Level)].Electricity);
+            -this.GetRoomSlots()
+                 .Select(rd => this.GetRoom(rd.RoomType).Phases[this.LevelToPhase(rd.Level)].Electricity)
+                 .Where(e => e < 0)
+                 .Sum();
 
         public int GetMaxPower() =>
             this.GetRoomSlots()
@@ -90,15 +92,15 @@ namespace Arknights.BaseSimulator.Data
                                       .Where(r => r.RoomType == roomType)
                                       .Count();
 
-        public int GetRoomCount(RoomCategory roomCategory) =>
-            this.SaveData.Slots.Values.OfType<RoomSlotData>()
-                                      .Select(r => this.GetRoom(r.RoomType))
-                                      .Where(r => r.Category == roomCategory)
+        public int GetCleanedSlotCount(string cleanCostId) =>
+            this.SaveData.Slots.Values.Where(sd => !(sd is LockedSlotData))
+                                      .Select(sd => this.GetSlot(sd.Id))
+                                      .Where(s => s.CleanCostId == cleanCostId)
                                       .Count();
 
         public IEnumerable<Cost> GetCleanCosts(Slot slot) =>
             this.BaseLayout.CleanCostTypes[slot.CleanCostId]
-                           .Number[this.GetRoomCount(slot.Category)]
+                           .Number[this.GetCleanedSlotCount(slot.CleanCostId)]
                            .Items;
 
         public BuildCost GetNewRoomBuildCost(Room room) => this.GetRoomBuildCost(room, 1);
